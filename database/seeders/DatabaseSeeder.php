@@ -24,14 +24,54 @@ class DatabaseSeeder extends Seeder
             'description' => 'Administrator'
         ]);
 
+        DB::table('sys_roles')->insert([
+            'idroles' => 'ppic01',
+            'name' => 'PPIC01',
+            'description' => 'Production Planning and Inventory Control 01'
+        ]);
+        DB::table('sys_roles')->insert([
+            'idroles' => 'ppic02',
+            'name' => 'PPIC02',
+            'description' => 'Production Planning and Inventory Control 02'
+        ]);
+        DB::table('sys_roles')->insert([
+            'idroles' => 'itdept',
+            'name' => 'IT',
+            'description' => 'Informasi Technology'
+        ]);
+
         //insert tabel users
         DB::table('users')->insert([
-            'username' => 'msjit',
+            'username' => 'msjadmin',
             'firstname' => 'Admin',
             'lastname' => 'MIS',
-            'email' => 'msjit@spunindo.com',
-            'password' => bcrypt('mis'),
+            'email' => 'msjadmin@spunindo.com',
+            'password' => bcrypt('adminmsj'),
             'idroles' => 'admins'
+        ]);
+        DB::table('users')->insert([
+            'username' => 'msjppic01',
+            'firstname' => 'PPIC01',
+            'lastname' => 'MIS',
+            'email' => 'msjppic01@spunindo.com',
+            'password' => bcrypt('buandinppic01'),
+            'idroles' => 'ppic01'
+        ]);
+        DB::table('users')->insert([
+            'username' => 'msjppic02',
+            'firstname' => 'PPIC02',
+            'lastname' => 'MIS',
+            'email' => 'msjppic02@spunindo.com',
+            'password' => bcrypt('pakcaturppic02'),
+            'idroles' => 'ppic02'
+        ]);
+        DB::table('users')->insert([
+            'username' => 'msjit',
+            'firstname' => 'IT',
+            'lastname' => 'MIS',
+            'email' => 'msjit@spunindo.com',
+            'password' => bcrypt('bumilait'),
+            'idroles' => 'itdept'
         ]);
 
         //insert tabel sys_gmenu
@@ -73,6 +113,26 @@ class DatabaseSeeder extends Seeder
             'urut' => 1,
             'name' => 'Dashboard',
             'url' => 'dashboard',
+            'icon' => 'ni-tv-2',
+            'tabel' => '-',
+            'layout' => 'manual'
+        ]);
+        DB::table('sys_dmenu')->insert([
+            'gmenu' => 'blankx',
+            'dmenu' => 'dbppic',
+            'urut' => 1,
+            'name' => 'Dashboard',
+            'url' => 'dashboardppic',
+            'icon' => 'ni-tv-2',
+            'tabel' => '-',
+            'layout' => 'manual'
+        ]);
+        DB::table('sys_dmenu')->insert([
+            'gmenu' => 'blankx',
+            'dmenu' => 'dsbdit',
+            'urut' => 1,
+            'name' => 'Dashboard',
+            'url' => 'dashboardit',
             'icon' => 'ni-tv-2',
             'tabel' => '-',
             'layout' => 'manual'
@@ -194,6 +254,30 @@ class DatabaseSeeder extends Seeder
             'idroles' => 'admins',
             'gmenu' => 'blankx',
             'dmenu' => 'dashbr',
+            'add' => '1',
+            'edit' => '1',
+            'delete' => '1'
+        ]);
+        DB::table('sys_auth')->insert([
+            'idroles' => 'ppic01',
+            'gmenu' => 'blankx',
+            'dmenu' => 'dbppic',
+            'add' => '1',
+            'edit' => '1',
+            'delete' => '1'
+        ]);
+        DB::table('sys_auth')->insert([
+            'idroles' => 'ppic02',
+            'gmenu' => 'blankx',
+            'dmenu' => 'dbppic',
+            'add' => '1',
+            'edit' => '1',
+            'delete' => '1'
+        ]);
+        DB::table('sys_auth')->insert([
+            'idroles' => 'itdept',
+            'gmenu' => 'blankx',
+            'dmenu' => 'dsbdit',
             'add' => '1',
             'edit' => '1',
             'delete' => '1'
@@ -722,6 +806,7 @@ class DatabaseSeeder extends Seeder
             tabel_sys_auth::class,
             tabel_rpt_syslog::class,
             menu_rpt_seeder::class,
+            menu_trs_seeder::class,
             tabel_rpt_seeder::class,
             example_call_seed::class,
         ]);
