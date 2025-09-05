@@ -40,8 +40,11 @@
                             <p class="text-uppercase text-sm">View {{ $title_menu }}</p>
                             <hr class="horizontal dark mt-0">
                             <div class="row">
+
+                                {{-- BOLEH Diedit --}}
+                                
                                 {{-- retrieve table header --}}
-                                @foreach ($table_header as $header)
+                                {{-- @foreach ($table_header as $header)
                                     @php
                                         $primary = false;
                                         $generateid = false;
@@ -60,13 +63,13 @@
                                     @endphp
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                            @if ($header->type != 'hidden')
+                                            @if ($header->type != 'hidden') --}}
                                                 {{-- display label alias on type field not hidden --}}
-                                                <label for="example-text-input"
+                                                {{-- <label for="example-text-input"
                                                     class="form-control-label">{{ $header->alias }}</label>
-                                            @endif
+                                            @endif --}}
                                             {{-- field type char and string --}}
-                                            @if ($header->type == 'char' || $header->type == 'string')
+                                            {{-- @if ($header->type == 'char' || $header->type == 'string')
                                                 <input
                                                     class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
                                                     type="text" disabled {{ $primary ? ' key=true' : '' }}
@@ -76,18 +79,18 @@
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type text --}}
-                                            @elseif ($header->type == 'text')
+                                            {{-- @elseif ($header->type == 'text')
                                                 <textarea class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
                                                     disabled name="{{ $header->field }}" maxlength="{{ $header->length }}">{{ $list ? $list->{$header->field} : old($header->field) }}</textarea>
                                                 @if ($header->note != '')
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type email --}}
-                                            @elseif ($header->type == 'email')
+                                            {{-- @elseif ($header->type == 'email')
                                                 <input
                                                     class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
                                                     type="email" disabled {{ $primary ? ' key=true' : '' }}
@@ -97,9 +100,9 @@
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type number --}}
-                                            @elseif ($header->type == 'number')
+                                            {{-- @elseif ($header->type == 'number')
                                                 <input
                                                     class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
                                                     type="number" disabled {{ $primary ? ' key=true' : '' }}
@@ -109,9 +112,9 @@
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type currency --}}
-                                            @elseif ($header->type == 'currency')
+                                            {{-- @elseif ($header->type == 'currency')
                                                 <input
                                                     class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
                                                     type="number" disabled {{ $primary ? ' key=true' : '' }}
@@ -121,9 +124,9 @@
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type search --}}
-                                            @elseif ($header->type == 'search')
+                                            {{-- @elseif ($header->type == 'search')
                                                 <div class="flex flex-col mb-2 input-group">
                                                     <input name="{{ $header->field }}"
                                                         class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }}  {{ $header->class }}"
@@ -134,9 +137,9 @@
                                                         data-bs-target="#searchModal{{ $header->field }}"
                                                         style="border-color:#d2d6da;border-left:3px solid #d2d6da;cursor: pointer;display:none;"><i
                                                             class="fas fa-search"></i></span>
-                                                </div>
+                                                </div> --}}
                                                 <!-- Modal -->
-                                                <div class="modal fade" id="searchModal{{ $header->field }}" tabindex="-1"
+                                                {{-- <div class="modal fade" id="searchModal{{ $header->field }}" tabindex="-1"
                                                     role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered" role="document">
                                                         <div class="modal-content">
@@ -217,9 +220,9 @@
                                                         $('input[name="{{ $header->field }}"]').val(id);
                                                         $('#searchModal{{ $header->field }}').modal('hide');
                                                     }
-                                                </script>
+                                                </script> --}}
                                                 {{-- field type image --}}
-                                            @elseif ($header->type == 'image')
+                                            {{-- @elseif ($header->type == 'image')
                                                 <div class="col-sm-auto">
                                                     <div class="position-relative">
                                                         <div>
@@ -257,9 +260,9 @@
                                                     <p class='text-primary text-xs pt-1'>Format Image :
                                                         <b>PNG,JPG,JPEG</b>
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 <!-- Modal -->
-                                                <div class="modal fade" id="imageModal" tabindex="-1" role="dialog"
+                                                {{-- <div class="modal fade" id="imageModal" tabindex="-1" role="dialog"
                                                     aria-labelledby="imageModalLabel" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered" role="document">
                                                         <div class="modal-content">
@@ -292,9 +295,9 @@
                                                         $('input[name="{{ $header->field }}"]').click();
 
                                                     });
-                                                </script>
+                                                </script> --}}
                                                 {{-- field type password --}}
-                                            @elseif ($header->type == 'password')
+                                            {{-- @elseif ($header->type == 'password')
                                                 <div class="flex flex-col mb-2 input-group pass">
                                                     <input class="form-control {{ $header->class }}" disabled
                                                         {{ $primary ? ' key=true type=hidden' : ($header->filter == '1' ? ' type=password' : ' type=hidden') }}
@@ -306,9 +309,9 @@
                                                 </div>
                                                 <p class='text-primary text-xs pt-1'>Default Password :
                                                     <b>{{ $header->default }}</b>
-                                                </p>
+                                                </p> --}}
                                                 {{-- field type file --}}
-                                            @elseif ($header->type == 'file')
+                                            {{-- @elseif ($header->type == 'file')
                                                 <input class="form-control {{ $header->class }}" type="file" disabled
                                                     id="{{ $header->field }}edit"
                                                     value="{{ $list ? $list->{$header->field} : old($header->field) }}"
@@ -327,9 +330,9 @@
                                                     <p class='text-primary text-xs pt-1'>Format File :
                                                         <b>pdf,xls,xlsx</b>
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type date --}}
-                                            @elseif ($header->type == 'date')
+                                            {{-- @elseif ($header->type == 'date')
                                                 <input
                                                     class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
                                                     type="date" disabled {{ $primary ? ' key=true' : '' }}
@@ -339,14 +342,14 @@
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type hidden --}}
-                                            @elseif ($header->type == 'hidden')
+                                            {{-- @elseif ($header->type == 'hidden')
                                                 <input class="form-control {{ $header->class }}" type="hidden"
                                                     value="{{ $header->default }}" name="{{ $header->field }}"
-                                                    max="{{ $header->length }}">
+                                                    max="{{ $header->length }}"> --}}
                                                 {{-- field type enum --}}
-                                            @elseif ($header->type == 'enum')
+                                            {{-- @elseif ($header->type == 'enum')
                                                 <select
                                                     class="form-select {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
                                                     name="{{ $header->field }}" disabled
@@ -364,8 +367,8 @@
                                                             </option>
                                                         @endforeach
                                                     @endif
-                                                </select>
-                                                @if ($header->note != '')
+                                                </select> --}}
+                                                {{-- @if ($header->note != '')
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
@@ -379,7 +382,7 @@
                                             @enderror
                                         </div>
                                     </div>
-                                @endforeach
+                                @endforeach --}}
                             </div>
                             <div class="row px-2 py-2">
                                 <div class="col-lg">

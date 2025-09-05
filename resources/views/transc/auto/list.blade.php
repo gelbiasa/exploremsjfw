@@ -4,7 +4,8 @@
     @include('layouts.navbars.auth.topnav', ['title' => ''])
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-{{ $colomh > 1 ? '4' : '3' }}">
+            {{-- Boleh Diedit --}}
+            {{-- <div class="col-md-{{ $colomh > 1 ? '4' : '3' }}"> --}}
                 <div class="row mb-2 mx-1">
                     <div class="card" style="min-height: 650px;">
                         <div class="card-header">
@@ -16,16 +17,18 @@
                                 <table class="table display" id="list_header">
                                     <thead class="thead-light" style="background-color: #00b7bd4f;">
                                         <tr>
+                                            {{-- Boelh Diedit }}
                                             {{-- retrieve table header --}}
-                                            @foreach ($table_header_h as $header_h)
+                                            {{-- @foreach ($table_header_h as $header_h)
                                                 <th>{{ $header_h->alias }}</th>
                                             @endforeach
-                                            <th>Action</th>
+                                            <th>Action</th> --}}
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {{-- Boleh Diedit}}
                                         {{-- retrieve table detail --}}
-                                        @foreach ($table_detail_h as $detail_h)
+                                        {{-- @foreach ($table_detail_h as $detail_h)
                                             @php
                                                 $primary = '';
                                                 foreach ($table_primary_h as $p) {
@@ -38,9 +41,9 @@
                                                 @foreach ($table_header_h as $field_h)
                                                     @php
                                                         $string = $field_h->field;
-                                                    @endphp
+                                                    @endphp --}}
                                                     {{-- field type join --}}
-                                                    @if ($field_h->type == 'join')
+                                                    {{-- @if ($field_h->type == 'join')
                                                         <td
                                                             class="text-sm font-weight-{{ $field_h->primary == '1' ? 'bold text-dark' : 'normal' }}">
                                                             @if ($field_h->query != '')
@@ -57,9 +60,9 @@
                                                                     {{ $sAsArray[0] != '' ? $sAsArray[0] : '' }}
                                                                 @endforeach
                                                             @endif
-                                                        </td>
+                                                        </td> --}}
                                                         {{-- field type enum --}}
-                                                    @elseif ($field_h->type == 'enum')
+                                                    {{-- @elseif ($field_h->type == 'enum')
                                                         <td
                                                             class="text-sm font-weight-{{ $field_h->primary == '1' ? 'bold text-dark' : 'normal' }}">
                                                             @if ($field_h->query != '')
@@ -78,9 +81,9 @@
                                                             {{ $detail_h->$string }}</td>
                                                     @endif
                                                 @endforeach
-                                                <td class="text-sm font-weight-normal">
+                                                <td class="text-sm font-weight-normal"> --}}
                                                     {{-- button detail --}}
-                                                    <button type="button" class="btn btn-primary mb-0 py-1 px-3"
+                                                    {{-- <button type="button" class="btn btn-primary mb-0 py-1 px-3"
                                                         title="View Data"
                                                         onclick="detail('{{ encrypt($primary) }}','{{ $gmenuid }}','{{ $dmenu }}','{{ $detail_h->$string }}')">
                                                         <i class="fas fa-info-circle"></i> </i><span
@@ -89,7 +92,7 @@
                                                     </button>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        @endforeach --}}
                                     </tbody>
                                 </table>
                             </div>
@@ -97,30 +100,31 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-{{ $colomh > 1 ? '8' : '9' }}">
-                <div class="row mx-1">
+            {{--Boleh diedit --}}
+            {{-- <div class="col-md-{{ $colomh > 1 ? '8' : '9' }}"> --}}
+                {{-- <div class="row mx-1">
                     <div class="card" style="min-height: 650px;">
                         <div class="card-header">
                             <h5 class="mb-0" id="label_detail">List Detail</h5>
                         </div>
-                        <hr class="horizontal dark mt-0">
+                        <hr class="horizontal dark mt-0"> --}}
                         {{-- alert --}}
-                        @include('components.alert')
+                        {{-- @include('components.alert')
                         <div class="row px-4 py-2">
                             <div class="table-responsive">
                                 <table class="table display" id="list_detail">
                                     <thead class="thead-light" style="background-color: #00b7bd4f;">
-                                        <tr>
-                                            <th>Action</th>
+                                        <tr> --}}
+                                            {{-- <th>Action</th> --}}
                                             {{-- retrieve table header --}}
-                                            @foreach ($table_header_d as $header_d)
+                                            {{-- @foreach ($table_header_d as $header_d)
                                                 <th>{{ $header_d->alias }}</th>
-                                            @endforeach
-                                        </tr>
+                                            @endforeach --}}
+                                        {{-- </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody> --}}
                                         {{-- retrieve table detail --}}
-                                        @foreach ($table_detail_d as $detail)
+                                        {{-- @foreach ($table_detail_d as $detail)
                                             @php
                                                 $primary = '';
                                                 foreach ($table_primary_h as $h) {
@@ -133,46 +137,46 @@
                                                         ? ($primary = $detail->{$p->field})
                                                         : ($primary = $primary . ':' . $detail->{$p->field});
                                                 }
-                                            @endphp
-                                            <tr {{ $detail->isactive == '0' ? 'style=background-color:#ffe9ed;' : '' }}>
+                                            @endphp --}}
+                                            {{-- <tr {{ $detail->isactive == '0' ? 'style=background-color:#ffe9ed;' : '' }}>
                                                 <td class="text-sm font-weight-normal">
                                                     <button type="submit" class="btn btn-primary mb-0 py-1 px-2"
                                                         title="View Data"
                                                         onclick="window.location='{{ url($url_menu . '/show' . '/' . encrypt($primary)) }}'">
                                                         <i class="fas fa-eye"></i>
-                                                    </button>
+                                                    </button> --}}
                                                     {{-- check authorize edit --}}
-                                                    @if ($authorize->edit == '1')
+                                                    {{-- @if ($authorize->edit == '1') --}}
                                                         {{-- button edit --}}
-                                                        <button type="button" class="btn btn-warning mb-0 py-1 px-2"
+                                                        {{-- <button type="button" class="btn btn-warning mb-0 py-1 px-2"
                                                             title="Edit Data"
                                                             onclick="window.location='{{ url($url_menu . '/edit' . '/' . encrypt($primary)) }}'">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
-                                                    @endif
+                                                    @endif --}}
                                                     {{-- check authorize delete --}}
-                                                    @if ($authorize->delete == '1')
+                                                    {{-- @if ($authorize->delete == '1')
                                                         <form
                                                             onsubmit="return deleteData(event,'{{ $primary }}','Hapus')"
                                                             action="{{ url($url_menu . '/' . encrypt($primary)) }}"
                                                             method="POST" style="display: inline">
                                                             @csrf
-                                                            @method('DELETE')
+                                                            @method('DELETE') --}}
                                                             {{-- button delete --}}
-                                                            <button type="submit" class="btn btn-danger mb-0 py-1 px-2"
+                                                            {{-- <button type="submit" class="btn btn-danger mb-0 py-1 px-2"
                                                                 title="Hapus Data">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
                                                         </form>
                                                     @endif
-                                                </td>
+                                                </td> --}}
                                                 {{-- retrieve table detail --}}
-                                                @foreach ($table_header_d as $field)
+                                                {{-- @foreach ($table_header_d as $field)
                                                     @php
                                                         $string = $field->field;
-                                                    @endphp
+                                                    @endphp --}}
                                                     {{-- field type enum --}}
-                                                    @if ($field->type == 'enum')
+                                                    {{-- @if ($field->type == 'enum')
                                                         <td
                                                             class="text-sm font-weight-{{ $field->primary == '1' ? 'bold text-dark' : 'normal' }}">
                                                             @if ($field->query != '')
@@ -184,9 +188,9 @@
                                                                     {{ $detail->$string == $sAsArray[0] ? $sAsArray[1] : '' }}
                                                                 @endforeach
                                                             @endif
-                                                        </td>
+                                                        </td> --}}
                                                         {{-- field type file --}}
-                                                    @elseif ($field->type == 'file')
+                                                    {{-- @elseif ($field->type == 'file')
                                                         <td
                                                             class="text-sm font-weight-{{ $field->primary == '1' ? 'bold text-dark' : 'normal' }}">
                                                             @if ($detail->$string)
@@ -197,9 +201,9 @@
                                                                     </i>
                                                                     {{ $field->alias }}</a>
                                                             @endif
-                                                        </td>
+                                                        </td> --}}
                                                         {{-- field type image --}}
-                                                    @elseif($field->type == 'image')
+                                                    {{-- @elseif($field->type == 'image')
                                                         <td
                                                             class="text-sm font-weight-{{ $field->primary == '1' ? 'bold text-dark' : 'normal' }}">
                                                             <span class="my-2 text-xs">
@@ -210,9 +214,9 @@
                                                             </span>
                                                             <span
                                                                 style="display: none;">{{ asset('/storage' . '/' . $detail->$string) }}
-                                                            </span>
+                                                            </span> --}}
                                                             <!-- Modal -->
-                                                            <div class="modal fade" id="imageModal{{ $field->field }}"
+                                                            {{-- <div class="modal fade" id="imageModal{{ $field->field }}"
                                                                 tabindex="-1" role="dialog"
                                                                 aria-labelledby="imageModalLabel" aria-hidden="true">
                                                                 <div class="modal-dialog modal-dialog-centered"
@@ -237,9 +241,9 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </td>
+                                                        </td> --}}
                                                         {{-- field type join --}}
-                                                    @elseif($field->type == 'join')
+                                                    {{-- @elseif($field->type == 'join')
                                                         <td
                                                             class="text-sm font-weight-{{ $field->primary == '1' ? 'bold text-dark' : 'normal' }}">
                                                             @if ($field->query != '')
@@ -261,9 +265,9 @@
                                                                         </span>
                                                                         <span
                                                                             style="display: none;">{{ asset('/storage' . '/' . $sAsArray[0]) }}
-                                                                        </span>
+                                                                        </span> --}}
                                                                         <!-- Modal -->
-                                                                        <div class="modal fade"
+                                                                        {{-- <div class="modal fade"
                                                                             id="imageModalJoin{{ $primary }}"
                                                                             tabindex="-1" role="dialog"
                                                                             aria-labelledby="imageModalJoinLabel"
@@ -297,9 +301,9 @@
                                                                     @endif
                                                                 @endforeach
                                                             @endif
-                                                        </td>
+                                                        </td> --}}
                                                         {{-- field type currency --}}
-                                                    @elseif ($field->type == 'currency')
+                                                    {{-- @elseif ($field->type == 'currency')
                                                         <td
                                                             class="text-sm font-weight-{{ $field->primary == '1' ? 'bold text-dark' : 'normal' }}">
                                                             {{ $format->CurrencyFormat($detail->$string, $field->decimals, $field->sub) }}
@@ -318,7 +322,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
     {{-- check flag js on dmenu --}}

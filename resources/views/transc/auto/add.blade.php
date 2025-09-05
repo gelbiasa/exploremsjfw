@@ -33,8 +33,9 @@
                             <p class="text-uppercase text-sm">Insert {{ $title_menu }}</p>
                             <hr class="horizontal dark mt-0">
                             <div class="row">
+                                {{-- Boleh diedit --}}
                                 {{-- retrieve table header --}}
-                                @foreach ($table_header as $header)
+                                {{-- @foreach ($table_header as $header)
                                     @php
                                         $primary = false;
                                         $generateid = false;
@@ -52,14 +53,14 @@
                                         }
                                     @endphp
                                     <div class="col-md-12">
-                                        <div class="form-group">
+                                        <div class="form-group"> --}}
                                             {{-- display label alias on type field not hidden --}}
-                                            @if ($header->type != 'hidden')
+                                            {{-- @if ($header->type != 'hidden')
                                                 <label for="example-text-input" class="form-control-label"
                                                     {{ $primary ? ($generateid ? ' style=display:none;' : '') : '' }}>{{ $header->alias }}</label>
-                                            @endif
+                                            @endif --}}
                                             {{-- field type char and string --}}
-                                            @if ($header->type == 'char' || $header->type == 'string')
+                                            {{-- @if ($header->type == 'char' || $header->type == 'string')
                                                 <input class="form-control  {{ $header->class }}"
                                                     {{ $primary ? ($generateid ? ' key=true type=hidden' : ' type=text') : ' type=text' }}
                                                     value="{{ old($header->field) ? old($header->field) : $header->default }}"
@@ -68,9 +69,9 @@
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type email --}}
-                                            @elseif ($header->type == 'email')
+                                            {{-- @elseif ($header->type == 'email')
                                                 <input class="form-control {{ $header->class }}"
                                                     {{ $primary ? ($generateid ? ' key=true type=hidden' : ' type=email') : ' type=email' }}
                                                     value="{{ old($header->field) ? old($header->field) : $header->default }}"
@@ -79,17 +80,17 @@
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type text --}}
-                                            @elseif ($header->type == 'text')
+                                            {{-- @elseif ($header->type == 'text')
                                                 <textarea class="form-control {{ $header->class }}" name="{{ $header->field }}" maxlength="{{ $header->length }}">{{ old($header->field) ? old($header->field) : $header->default }}</textarea>
                                                 @if ($header->note != '')
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type number --}}
-                                            @elseif ($header->type == 'number')
+                                            {{-- @elseif ($header->type == 'number')
                                                 <input class="form-control {{ $header->class }}"
                                                     {{ $primary ? ($generateid ? ' key=true type=hidden' : ' type=number') : ' type=number' }}
                                                     value="{{ old($header->field) ? old($header->field) : $header->default }}"
@@ -98,9 +99,9 @@
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type currency --}}
-                                            @elseif ($header->type == 'currency')
+                                            {{-- @elseif ($header->type == 'currency')
                                                 <input class="form-control {{ $header->class }}"
                                                     {{ $primary ? ($generateid ? ' key=true type=hidden' : ' type=number') : ' type=number' }}
                                                     value="{{ old($header->field) ? old($header->field) : $header->default }}"
@@ -109,9 +110,9 @@
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type file --}}
-                                            @elseif ($header->type == 'file')
+                                            {{-- @elseif ($header->type == 'file')
                                                 <input class="form-control {{ $header->class }}" type="file"
                                                     value="{{ old($header->field) }}" name="{{ $header->field }}">
                                                 <p class='text-primary text-xs pt-3 mb-0'>Maksimal Size :
@@ -125,9 +126,9 @@
                                                     <p class='text-primary text-xs pt-1'>Format File :
                                                         <b>pdf,xls,xlsx</b>
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type search --}}
-                                            @elseif ($header->type == 'search')
+                                            {{-- @elseif ($header->type == 'search')
                                                 <div class="flex flex-col mb-2 input-group">
                                                     <input
                                                         {{ $primary ? ($generateid ? ' key=true type=hidden' : ' type=text') : ' type=text' }}
@@ -139,9 +140,9 @@
                                                         data-bs-target="#searchModal{{ $header->field }}"
                                                         style="border-color:#d2d6da;border-left:3px solid #d2d6da;cursor: pointer;"><i
                                                             class="fas fa-search"></i></span>
-                                                </div>
+                                                </div> --}}
                                                 <!-- Modal -->
-                                                <div class="modal fade" id="searchModal{{ $header->field }}" tabindex="-1"
+                                                {{-- <div class="modal fade" id="searchModal{{ $header->field }}" tabindex="-1"
                                                     role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered" role="document">
                                                         <div class="modal-content">
@@ -222,9 +223,9 @@
                                                         $('input[name="{{ $header->field }}"]').val(id);
                                                         $('#searchModal{{ $header->field }}').modal('hide');
                                                     }
-                                                </script>
+                                                </script> --}}
                                                 {{-- field type image --}}
-                                            @elseif ($header->type == 'image')
+                                            {{-- @elseif ($header->type == 'image')
                                                 <div class="col-sm-auto">
                                                     <div class="position-relative">
                                                         <div>
@@ -272,17 +273,17 @@
                                                         $('input[name="{{ $header->field }}"]').click();
 
                                                     });
-                                                </script>
+                                                </script> --}}
                                                 {{-- field type password --}}
-                                            @elseif ($header->type == 'password')
+                                            {{-- @elseif ($header->type == 'password')
                                                 <input class="form-control {{ $header->class }}" type="hidden"
                                                     value="{{ $header->default }}" name="{{ $header->field }}"
                                                     max="{{ $header->length }}">
                                                 <p class='text-primary text-xs pt-1'>Default Password :
                                                     <b>{{ $header->default }}</b>
-                                                </p>
+                                                </p> --}}
                                                 {{-- field type date --}}
-                                            @elseif ($header->type == 'date')
+                                            {{-- @elseif ($header->type == 'date')
                                                 <input class="form-control {{ $header->class }}"
                                                     {{ $primary ? ($generateid ? ' key=true type=hidden' : ' type=date') : ' type=date' }}
                                                     value="{{ old($header->field) }}" name="{{ $header->field }}">
@@ -290,16 +291,16 @@
                                                     <p class='text-secondary text-xs pt-1 px-1'>
                                                         {{ '*) ' . $header->note }}
                                                     </p>
-                                                @endif
+                                                @endif --}}
                                                 {{-- field type hidden --}}
-                                            @elseif ($header->type == 'hidden')
+                                            {{-- @elseif ($header->type == 'hidden')
                                                 <input class="form-control {{ $header->class }}" type="hidden"
                                                     value="{{ $header->default }}" name="{{ $header->field }}"
-                                                    max="{{ $header->length }}">
+                                                    max="{{ $header->length }}"> --}}
                                                 {{-- field type enum --}}
-                                            @elseif ($header->type == 'enum')
+                                            {{-- @elseif ($header->type == 'enum') --}}
                                                 {{-- {{ dd($wherekey[$header->field]) }} --}}
-                                                @if (@$wherekey[$header->field])
+                                                {{-- @if (@$wherekey[$header->field])
                                                     <br>
                                                     <span for="example-text-input" style="margin: 10px;"
                                                         class="form-control-label">{{ @$wherekey[$header->field] }}</span>
@@ -350,7 +351,7 @@
                                                 <p class='text-danger text-xs pt-1'> {{ $message }} </p>
                                             @enderror
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 @endforeach
                             </div>
                             <hr class="horizontal dark">
