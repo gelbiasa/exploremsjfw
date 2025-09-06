@@ -25,6 +25,19 @@ class menu_rpt_seeder extends Seeder
             'notif' => '',
             'layout' => 'manual'
         ]);
+        DB::table('sys_dmenu')->insert([
+            'gmenu' => 'report',
+            'dmenu' => 'rptbom',
+            'urut' => 1,
+            'name' => 'Report BOM',
+            'url' => 'rptbom',
+            'icon' => 'ni-collection',
+            'tabel' => 'trs_bom_h',
+            'notif' => '',
+            'layout' => 'manual',
+            'show' => '1',
+            'js' => '1'
+        ]);
         //insert auth
         DB::table('sys_auth')->insert([
             'idroles' => 'admins',
@@ -35,6 +48,21 @@ class menu_rpt_seeder extends Seeder
             'delete' => '0',
             'approval' => '0',
             'value' => '0',
+            'print' => '0',
+            'excel' => '0',
+            'pdf' => '0',
+            'rules' => '0',
+            'isactive' => '1'
+        ]);
+        DB::table('sys_auth')->insert([
+            'idroles' => 'itdept',
+            'dmenu' => 'rptbom',
+            'gmenu' => 'report',
+            'add' => '1',
+            'edit' => '0',
+            'delete' => '0',
+            'approval' => '0',
+            'value' => '1',
             'print' => '0',
             'excel' => '0',
             'pdf' => '0',
