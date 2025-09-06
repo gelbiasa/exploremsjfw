@@ -24,6 +24,23 @@ class LoginController extends Controller
         return view('auth.login', $data);
     }
 
+    /**
+     * Menentukan dashboard URL berdasarkan role user
+     */
+    private function getDashboardUrl($userRole)
+    {
+        switch ($userRole) {
+            case 'ppic01':
+            case 'ppic02':
+                return '/dashboardppic';
+            case 'itdept':
+                return '/dashboardit';
+            case 'admins':
+            default:
+                return '/dashboard';
+        }
+    }
+
     public function login(Request $request)
     {
         // function helper
@@ -36,8 +53,12 @@ class LoginController extends Controller
             $request->session()->put('username', $username);
             //insert sys_log
             $syslog->log_insert('L', 'login', 'Login Sukses', '1');
-            // page dashboard
-            return redirect()->intended('dashboard');
+            
+            // Tentukan dashboard berdasarkan role user
+            $dashboardUrl = $this->getDashboardUrl(auth()->user()->idroles);
+            
+            // page dashboard sesuai role
+            return redirect()->intended($dashboardUrl);
         } elseif (Auth::attempt(['username' => $request->username, 'password' => $request->password, 'isactive' => '0'])) {
             Auth::logout();
             // set session
@@ -103,8 +124,12 @@ class LoginController extends Controller
             $request->session()->put('username', $username);
             //insert sys_log
             $syslog->log_insert('L', 'login', 'Login Sukses', '1');
-            // page dashboard
-            return redirect()->intended('dashboard');
+            
+            // Tentukan dashboard berdasarkan role user
+            $dashboardUrl = $this->getDashboardUrl(auth()->user()->idroles);
+            
+            // page dashboard sesuai role
+            return redirect()->intended($dashboardUrl);
         } elseif (Auth::attempt(['username' => $token[0], 'password' => openssl_decrypt(str_replace(['-', '_', '@'], ['+', '/', '='], $token[1]), env('ALG'), env('KEY'), 0, env('SCR')), 'isactive' => '0'])) {
             Auth::logout();
             // set session
