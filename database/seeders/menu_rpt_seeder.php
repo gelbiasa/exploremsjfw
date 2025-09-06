@@ -32,7 +32,7 @@ class menu_rpt_seeder extends Seeder
             'name' => 'Report BOM',
             'url' => 'rptbom',
             'icon' => 'ni-collection',
-            'tabel' => 'trs_bom_h',
+            'tabel' => '-',
             'notif' => '',
             'layout' => 'manual',
             'show' => '1',
