@@ -83,6 +83,133 @@ class TrsBomSeeder extends Seeder
                 DB::table('trs_bom_d')->insert($detailData);
             }
         }
+
+        // Clear existing data
+        DB::table('mst_material')->delete();
+
+        // Reset auto increment
+        DB::statement('ALTER TABLE mst_material AUTO_INCREMENT = 1');
+
+        $bomData = $this->getBomData();
+        $materials = [];
+
+        foreach ($bomData as $group) {
+            // Extract data dari header BOM
+            $header = $group['header'];
+            
+            // Buat entri material untuk FG/SFG dari header
+            $fgCode = $this->normalizeMaterialCode($header['material_fg_sfg']);
+            $materials[$fgCode] = [
+                'kode_baru_fg' => $fgCode,
+                'id_mat_group' => substr($header['mat_type'], 1), // Ambil angka dari ZFGD -> FGD
+                'customer' => 'DEFAULT',
+                'product_name' => substr($header['product'], 0, 25), // Truncate to 25 chars
+                'division' => '10',
+                'mat_g1' => substr($header['resource'], 0, 2),
+                'mat_g2' => substr($header['resource'], 2, 3),
+                'mat_g3' => '000',
+                'keterangan' => substr($header['process'] . ' - ' . $header['material_fg_sfg_kode_lama'], 0, 255),
+                'length' => $header['length'],
+                'width' => $header['width'],
+                'weight' => $header['capacity'],
+                'alt_uom' => 'KG',
+                'top_load' => null,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+                'user_create' => 'seeder',
+                'user_update' => 'seeder',
+                'it_update' => null,
+                'status' => '1',
+                'isactive' => '1',
+            ];
+
+            // Extract data dari detail BOM untuk komponen materials
+            foreach ($group['details'] as $detail) {
+                if (!empty($detail['comp_material_code'])) {
+                    $compCode = $this->normalizeMaterialCode($detail['comp_material_code']);
+                    
+                    if (!isset($materials[$compCode])) {
+                        $materials[$compCode] = [
+                            'kode_baru_fg' => $compCode,
+                            'id_mat_group' => $this->determineMatGroup($detail['comp_material_code'], $detail['type']),
+                            'customer' => 'DEFAULT',
+                            'product_name' => substr($detail['comp_desc'], 0, 25),
+                            'division' => '20',
+                            'mat_g1' => '00',
+                            'mat_g2' => '000',
+                            'mat_g3' => '000',
+                            'keterangan' => substr($detail['comp_desc'], 0, 255),
+                            'length' => $detail['length_per_unit'],
+                            'width' => null,
+                            'weight' => $detail['comp_qty'],
+                            'alt_uom' => substr($detail['uom'], 0, 3),
+                            'top_load' => null,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                            'user_create' => 'seeder',
+                            'user_update' => 'seeder',
+                            'it_update' => null,
+                            'status' => '1',
+                            'isactive' => '1',
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Insert semua material ke database
+        foreach ($materials as $material) {
+            DB::table('mst_material')->insert($material);
+        }
+    }
+
+    /**
+     * Normalize material code to fit in 29 characters
+     */
+    private function normalizeMaterialCode($code): string
+    {
+        $code = trim($code);
+        
+        // Jika kode terlalu panjang, truncate atau gunakan hash
+        if (strlen($code) > 29) {
+            // Coba truncate dulu
+            $truncated = substr($code, 0, 29);
+            
+            // Jika truncated code sudah ada, gunakan hash untuk uniqueness
+            if (in_array($truncated, array_keys($this->getExistingCodes()))) {
+                return substr($code, 0, 20) . '_' . substr(md5($code), 0, 8);
+            }
+            
+            return $truncated;
+        }
+        
+        return $code;
+    }
+
+    /**
+     * Simulate existing codes for collision detection
+     */
+    private function getExistingCodes(): array
+    {
+        return [];
+    }
+
+    /**
+     * Determine material group berdasarkan kode material dan type
+     */
+    private function determineMatGroup($materialCode, $type): string
+    {
+        $materialCode = trim($materialCode);
+        
+        if (str_starts_with($materialCode, '1P_')) return 'RM';
+        if (str_starts_with($materialCode, '2M_')) return 'MB';
+        if (str_starts_with($materialCode, '3P_')) return 'PK';
+        if (str_starts_with($materialCode, '3C_')) return 'PK';
+        if (str_starts_with($materialCode, '1R_')) return 'RC';
+        if (str_starts_with($materialCode, '7P')) return 'FG';
+        if (str_starts_with($materialCode, 'P0')) return 'SFG';
+        
+        return $type == 'L' ? 'RM' : '00';
     }
 
     private function getBomData(): array
