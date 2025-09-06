@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('mst_material', function (Blueprint $table) {
             $table->bigIncrements('id'); // bigint(20) UNSIGNED AUTO_INCREMENT
             $table->string('kode_baru_fg', 29);
-            $table->string('id_mat_group', 2);
+            $table->string('id_mat_group', 3); // dinaikkan dari 2 ke 3 (RM, MB, PK, RC, FG, SFG)
             $table->string('customer', 20);
-            $table->string('product_name', 25);
+            $table->string('product_name', 100); // dinaikkan dari 25 ke 100 untuk menghindari error panjang teks
             $table->enum('division', ['10', '20']);
             $table->string('mat_g1', 2);
             $table->string('mat_g2', 3);
