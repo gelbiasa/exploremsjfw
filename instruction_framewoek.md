@@ -50,6 +50,12 @@ Menjelaskan empat routes utama: Index, Add (dengan fungsi store), Show, dan Edit
 Khusus Layout Manual Jika Anda Memilih Ini, Maka Harus Membuat Folder Sesuai Nama URL
 Di Dalam Folder Views->(Nama GMENU)->(NamaURL).
 
+1. Routes Index, Contoh URL : “http://127.0.0.1:8000/msenum” Route Ini Akan Mengakses Controller Dengan Function “index” Dan Akan Meneruskan Ke View “list.blade.php”
+2. Routes Add, Contoh URL : “http://127.0.0.1:8000/msenum/add” Route Ini Akan Mengakses Controller Dengan Function “add” Dan Akan Meneruskan Ke View “add.blade.php” Controller Dengan Function “store” Sebagai Eksekutor Data Yang Akan Di Simpan.
+3. Routes Show, Contoh URL : “http://127.0.0.1:8000/msenum/show/(id)” Route Ini Akan Mengakses Controller Dengan Function “show” Dan Akan Meneruskan Ke View
+“show.blade.php”
+4. Routes Edit, Contoh URL : “http://127.0.0.1:8000/msenum/edit/(id)” Route Ini Akan Mengakses Controller Dengan Function “edit” Dan Akan Meneruskan Ke View “edit.blade.php”Controller Dengan Function “update” Sebagai Eksekutor Data Yang Akan Di Update. Controller Dengan Function “destroy” Sebagai Eksekutor Data Yang Akan Di Hapus.
+
 # Penjelasan List Menu: 
 
 1. ID Menu = Digunakan sebagai primary key setiap menu.
@@ -68,3 +74,6 @@ memakai layout sublink.
 12. Javascript = Setting Untuk Menggunakan JS Tambahan Atau Tidak, Jika memilih iya maka harus menambahkan file JS di folder “resources\views\js\(idmenu).blade.php”
 13. Notifikasi(Query) = Query Ini Akan Muncul Di Samping List Menu, berisi query dengan hasilharus 1 data dan harus memakai alias “notif”
 Contoh query untuk menu users : “select count(*) as 'notofikasi' from users where isactive = '1'”
+
+# Alur Modifikasi Framework Layout Manual
+Acuan: informasi untuk perubahan kode pada views/transc/trslod itu yang boleh diedit hanya bagian conten sebagai acuan saya sudah menandai dengan membeikan command pada transc/auto dimana kode mana saja yang boleh diedit dengan memberikan tanda {{-- Boleh Diedit}}
