@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class TrsBomD extends Model
+class TrsBomDModel extends Model
 {
     use HasFactory;
 
@@ -87,6 +87,6 @@ class TrsBomD extends Model
      */
     public function header(): BelongsTo
     {
-        return $this->belongsTo(TrsBomH::class, 'fk_trs_bom_h_id', 'trs_bom_h_id');
+        return $this->belongsTo(TrsBomHModel::class, 'fk_trs_bom_h_id', 'trs_bom_h_id');
     }
 }
