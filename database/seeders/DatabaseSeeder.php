@@ -792,6 +792,72 @@ class DatabaseSeeder extends Seeder
         // Insert the data into the database
         DB::table('trs_bom_d')->insert($insertData);
 
+        $this->command->info('Starting MstMaterialSeeder...');
+        $now = Carbon::now();
+
+        // Step 1 & 2: Get unique material codes from both BOM tables
+        $bomHMaterials = DB::table('trs_bom_h')->pluck('material_fg_sfg')->filter();
+        $bomDMaterials = DB::table('trs_bom_d')->pluck('comp_material_code')->filter();
+
+        // Step 3: Combine, filter unique, and remove any nulls/empty strings
+        $allUniqueMaterials = $bomHMaterials->concat($bomDMaterials)->unique()->values();
+        
+        $materialsToInsert = [];
+        $this->command->getOutput()->progressStart($allUniqueMaterials->count());
+
+        foreach ($allUniqueMaterials as $materialCode) {
+            // Step 4 & 5: Find related data from source tables
+            $bomHRecord = DB::table('trs_bom_h')->where('material_fg_sfg', $materialCode)->first();
+            $bomDRecord = DB::table('trs_bom_d')->where('comp_material_code', $materialCode)->first();
+
+            // Determine product name/description, prioritize from bom_d if available
+            $productName = $bomDRecord->comp_desc ?? ($bomHRecord->product ?? 'Unknown Product');
+            
+            // Parsing material code to fill group columns
+            // ASSUMPTION: The structure is based on the first part of the code before any '-'
+            // Example: P0RA00 -> id_mat_group=P0, mat_g1=RA, mat_g2=A00
+            $firstPart = explode('-', $materialCode)[0];
+            $idMatGroup = substr($firstPart, 0, 2);
+            $matG1 = substr($firstPart, 2, 2);
+            $matG2 = substr($firstPart, 4, 3);
+            $matG3 = substr($firstPart, 7, 3); // May be empty if code is short
+
+            // Step 6: Prepare data for mst_material table with defaults for missing info
+            $materialsToInsert[] = [
+                'kode_baru_fg' => $materialCode,
+                'id_mat_group' => $idMatGroup,
+                'customer' => 'INTERNAL', // Default value, please adjust if needed
+                'product_name' => substr($productName, 0, 25),
+                'division' => '10', // Default value, please adjust if needed
+                'mat_g1' => $matG1,
+                'mat_g2' => $matG2,
+                'mat_g3' => $matG3,
+                'keterangan' => $productName,
+                'length' => $bomHRecord->length ?? ($bomDRecord->length_per_unit ?? null),
+                'width' => $bomHRecord->width ?? ($bomDRecord->lebar ?? null),
+                'weight' => null, // No source data available
+                'alt_uom' => 'KG', // Default value, please adjust if needed
+                'top_load' => null, // No source data available
+                'created_at' => $now,
+                'updated_at' => $now,
+                'user_create' => 'Seeder',
+                'user_update' => 'Seeder',
+                'it_update' => null,
+                'status' => '1', // '1' for active/approved
+                'isactive' => '1',
+            ];
+
+            $this->command->getOutput()->progressAdvance();
+        }
+
+        // Insert data in chunks for better performance with large datasets
+        foreach (array_chunk($materialsToInsert, 500) as $chunk) {
+            DB::table('mst_material')->insert($chunk);
+        }
+
+        $this->command->getOutput()->progressFinish();
+        $this->command->info('MstMaterialSeeder finished successfully.');
+
         //other seeder
         $this->call([
             tabel_users::class,
