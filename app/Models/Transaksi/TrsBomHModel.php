@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class TrsBomH extends Model
+class TrsBomHModel extends Model
 {
     use HasFactory;
 
@@ -63,6 +63,6 @@ class TrsBomH extends Model
      */
     public function details(): HasMany
     {
-        return $this->hasMany(TrsBomD::class, 'fk_trs_bom_h_id', 'trs_bom_h_id');
+        return $this->hasMany(TrsBomDModel::class, 'fk_trs_bom_h_id', 'trs_bom_h_id');
     }
 }
