@@ -66,6 +66,19 @@ class menu_trs_seeder extends Seeder
             'show' => '1',
             'js' => '1'
         ]);
+        DB::table('sys_dmenu')->insert([
+            'gmenu' => 'transc',
+            'dmenu' => 'trordr',
+            'urut' => 4,
+            'name' => 'Transaction Order',
+            'url' => 'trordr',
+            'icon' => 'fas fa-file-download',
+            'tabel' => '-',
+            'notif' => '',
+            'layout' => 'manual',
+            'show' => '1',
+            'js' => '1'
+        ]);
         //insert auth
         DB::table('sys_auth')->insert([
             'idroles' => 'ppic01',
@@ -76,9 +89,9 @@ class menu_trs_seeder extends Seeder
             'delete' => '0',
             'approval' => '0',
             'value' => '1',
-            'print' => '0',
-            'excel' => '0',
-            'pdf' => '0',
+            'print' => '1',
+            'excel' => '1',
+            'pdf' => '1',
             'rules' => '0',
             'isactive' => '1'
         ]);
@@ -91,9 +104,24 @@ class menu_trs_seeder extends Seeder
             'delete' => '0',
             'approval' => '0',
             'value' => '1',
-            'print' => '0',
-            'excel' => '0',
-            'pdf' => '0',
+            'print' => '1',
+            'excel' => '1',
+            'pdf' => '1',
+            'rules' => '0',
+            'isactive' => '1'
+        ]);
+        DB::table('sys_auth')->insert([
+            'idroles' => 'ppic01',
+            'dmenu' => 'trordr',
+            'gmenu' => 'transc',
+            'add' => '1',
+            'edit' => '1',
+            'delete' => '1',
+            'approval' => '1',
+            'value' => '1',
+            'print' => '1',
+            'excel' => '1',
+            'pdf' => '1',
             'rules' => '0',
             'isactive' => '1'
         ]);
@@ -106,9 +134,9 @@ class menu_trs_seeder extends Seeder
             'delete' => '0',
             'approval' => '0',
             'value' => '1',
-            'print' => '0',
-            'excel' => '0',
-            'pdf' => '0',
+            'print' => '1',
+            'excel' => '1',
+            'pdf' => '1',
             'rules' => '0',
             'isactive' => '1'
         ]);
