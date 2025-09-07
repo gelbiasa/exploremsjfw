@@ -36,7 +36,7 @@ class TrsBomSeeder extends Seeder
                 'process' => $group['header']['process'],
                 'material_fg_sfg_kode_lama' => $group['header']['material_fg_sfg_kode_lama'],
                 'material_fg_sfg' => $group['header']['material_fg_sfg'],
-                'isactive' => 1,
+                'isactive' => '1',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
                 'user_create' => 'seeder',
@@ -73,7 +73,7 @@ class TrsBomSeeder extends Seeder
                     'rewind' => null, // Tidak ada di Excel
                     'berat_sfg' => null, // Tidak ada di Excel
                     'lebar' => null, // Tidak ada di Excel
-                    'isactive' => 1,
+                    'isactive' => '1',
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                     'user_create' => 'seeder',
