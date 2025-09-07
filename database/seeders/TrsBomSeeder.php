@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -10,190 +11,1378 @@ class TrsBomSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
-        $this->command->info('Running TrsBomSeeder...');
+        // Clear existing data
+        DB::table('trs_bom_d')->delete();
+        DB::table('trs_bom_h')->delete();
 
-        // Optional: Truncate tables to start fresh on each seed
-        // This prevents creating duplicate data if you run the seeder multiple times.
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        DB::table('trs_bom_h')->truncate();
-        DB::table('trs_bom_d')->truncate();
-        DB::table('mst_material')->truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        // Reset auto increment
+        DB::statement('ALTER TABLE trs_bom_h AUTO_INCREMENT = 1');
+        DB::statement('ALTER TABLE trs_bom_d AUTO_INCREMENT = 1');
 
-        // Run each seeder logic in sequence
-        $this->seedTrsBomH();
-        $this->seedTrsBomD();
-        $this->seedMstMaterial();
-
-        $this->command->info('TrsBomSeeder finished successfully.');
-    }
-
-    /**
-     * Seeds the trs_bom_h table.
-     */
-    private function seedTrsBomH(): void
-    {
-        $this->command->info('Seeding trs_bom_h table...');
-        $now = Carbon::now();
-
-        $data = [
-            // Group 1
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BD', 'capacity' => 120, 'width' => 0.178, 'length' => 2000, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => '7PRYFN020-0178L', 'material_fg_sfg' => '7PORA00-Y00U10-00020-000178G'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BD', 'capacity' => 120, 'width' => 0.178, 'length' => 2000, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-Y00U10-00020-000178G'],
-            
-            // Group 2
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 234, 'width' => 1.8, 'length' => 2000, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => 'PRYFN020', 'material_fg_sfg' => 'P0RA00-Y00U10-00020'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 234, 'width' => 1.8, 'length' => 2000, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-Y00U10-00020'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 234, 'width' => 1.8, 'length' => 2000, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-Y00U10-00020'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 234, 'width' => 1.8, 'length' => 2000, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-Y00U10-00020'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 234, 'width' => 1.8, 'length' => 2000, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-Y00U10-00020'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 234, 'width' => 1.8, 'length' => 2000, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-Y00U10-00020'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 234, 'width' => 1.8, 'length' => 2000, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-Y00U10-00020'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 234, 'width' => 1.8, 'length' => 2000, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-Y00U10-00020'],
-
-            // Group 3
-            ['mat_type' => 'ZFGD', 'resource' => '1B00B3', 'capacity' => 96, 'width' => 1.600, 'length' => 100, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-Y00U10-00048-0001600A'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B00B3', 'capacity' => 96, 'width' => 1.600, 'length' => 100, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-Y00U10-00048-0001600A'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B00B3', 'capacity' => 96, 'width' => 1.600, 'length' => 100, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-Y00U10-00048-0001600A'],
-
-            // Group 4
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BD', 'capacity' => 360, 'width' => 1.600, 'length' => 1500, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-000W10-00048-0001600F'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BD', 'capacity' => 360, 'width' => 1.600, 'length' => 1500, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-000W10-00048-0001600F'],
-
-            // Group 5
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 217, 'width' => 1.8, 'length' => 1500, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-000W10-00048'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 217, 'width' => 1.8, 'length' => 1500, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-000W10-00048'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 217, 'width' => 1.8, 'length' => 1500, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-000W10-00048'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 217, 'width' => 1.8, 'length' => 1500, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-000W10-00048'],
-            ['mat_type' => 'ZSFG', 'resource' => '1B0808', 'capacity' => 217, 'width' => 1.8, 'length' => 1500, 'product' => 'PP Normal', 'process' => 'Spinning', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => 'P0RA00-000W10-00048'],
-
-            // Group 6
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BD', 'capacity' => 83, 'width' => 1.480, 'length' => 250, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-000W10-00060-0001480B'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BD', 'capacity' => 83, 'width' => 1.480, 'length' => 250, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-000W10-00060-0001480B'],
-
-            // Group 7
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BD', 'capacity' => 74, 'width' => 1.320, 'length' => 250, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-000W10-00060-0001320B'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BD', 'capacity' => 74, 'width' => 1.320, 'length' => 250, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-000W10-00060-0001320B'],
-            
-            // Group 8
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BC', 'capacity' => 61, 'width' => 1.080, 'length' => 250, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-000W10-00060-0001080B'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BC', 'capacity' => 61, 'width' => 1.080, 'length' => 250, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-000W10-00060-0001080B'],
-
-            // Group 9
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BC', 'capacity' => 68, 'width' => 1.200, 'length' => 250, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-000W10-00060-0001200B'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B08BC', 'capacity' => 68, 'width' => 1.200, 'length' => 250, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORA00-000W10-00060-0001200B'],
-            
-            // Group 10
-            ['mat_type' => 'ZFGD', 'resource' => '1B10BE', 'capacity' => 308, 'width' => 0.800, 'length' => 1000, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORAH0-000110-00070-0000800E'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B10BE', 'capacity' => 308, 'width' => 0.800, 'length' => 1000, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORAH0-000110-00070-0000800E'],
-
-            // Group 11
-            ['mat_type' => 'ZFGD', 'resource' => '1B00B1', 'capacity' => 98, 'width' => 0.050, 'length' => 1000, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORAH0-000R25-00070-0000050E'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B00B1', 'capacity' => 98, 'width' => 0.050, 'length' => 1000, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORAH0-000R25-00070-0000050E'],
-
-            // Group 12
-            ['mat_type' => 'ZFGD', 'resource' => '1B10BE', 'capacity' => 308, 'width' => 0.800, 'length' => 1000, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORAH0-000R25-00070-0000800E'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B10BE', 'capacity' => 308, 'width' => 0.800, 'length' => 1000, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORAH0-000R25-00070-0000800E'],
-
-            // Group 13
-            ['mat_type' => 'ZFGD', 'resource' => '1B00B1', 'capacity' => 98, 'width' => 0.050, 'length' => 1000, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORAH0-000R25-00070-0000050E'],
-            ['mat_type' => 'ZFGD', 'resource' => '1B00B1', 'capacity' => 98, 'width' => 0.050, 'length' => 1000, 'product' => 'PP Normal', 'process' => 'Rewind Jumbo', 'material_fg_sfg_kode_lama' => null, 'material_fg_sfg' => '7PORAH0-000R25-00070-0000050E'],
-        ];
-
-        $insertData = array_map(fn($item) => array_merge($item, [
-            'isactive' => 1, 'created_at' => $now, 'updated_at' => $now, 'user_create' => 'Seeder', 'user_update' => 'Seeder',
-        ]), $data);
-
-        DB::table('trs_bom_h')->insert($insertData);
-    }
-
-    /**
-     * Seeds the trs_bom_d table.
-     */
-    private function seedTrsBomD(): void
-    {
-        $this->command->info('Seeding trs_bom_d table...');
-        $now = Carbon::now();
-        // Here you would fetch the IDs from trs_bom_h to link them correctly.
-        // For this example, we'll use placeholder IDs as in your previous code.
-        $data = [
-            // Group for fk_trs_bom_h_id = 3 (P0RA00-Y00U10-00020)
-            ['fk_trs_bom_h_id' => 3, 'header_desc' => 'Nonwovens Spunbond P0RA00-Y00U10-00020', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BS-RED', 'product_qty' => 7.123, 'base_uom_header' => 'KG', 'item_number' => '0010', 'type' => 'L', 'comp_material_code' => '1P_EDMNRMMN00', 'comp_desc' => 'Nonwovens Spunbond P0RA00-Y00U10-00020', 'comp_qty' => 9.130, 'uom' => 'KG', 'length_per_unit' => null, 'waste_jumbo' => 22.00, 'remark' => null, 'lebar' => null],
-            ['fk_trs_bom_h_id' => 3, 'header_desc' => 'Nonwovens Spunbond P0RA00-Y00U10-00020', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BS-RED', 'product_qty' => 7.123, 'base_uom_header' => 'KG', 'item_number' => '0020', 'type' => 'L', 'comp_material_code' => '3P_BMMJCT70000', 'comp_desc' => 'CORE 3" 8 MM X 178 CM CHIP BOARD', 'comp_qty' => 1.700, 'uom' => 'PC', 'length_per_unit' => null, 'waste_jumbo' => null, 'remark' => null, 'lebar' => null],
-            ['fk_trs_bom_h_id' => 3, 'header_desc' => 'Nonwovens Spunbond P0RA00-Y00U10-00020', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BS-RED', 'product_qty' => 100.000, 'base_uom_header' => 'KG', 'item_number' => '0010', 'type' => 'L', 'comp_material_code' => '1P_EXVLMAXB001', 'comp_desc' => 'PP CHIPS EXXON 130E5 (BAG)', 'comp_qty' => 11.100, 'uom' => 'KG', 'length_per_unit' => 2000, 'waste_jumbo' => null, 'remark' => null, 'lebar' => 2.550],
-            // ... (Continue adding all rows from the image with the same fk_trs_bom_h_id)
-
-            // Group for fk_trs_bom_h_id = 15 (P0RA00-000W10-00048)
-            ['fk_trs_bom_h_id' => 15, 'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00048', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BS-PM', 'product_qty' => 3.680, 'base_uom_header' => 'KG', 'item_number' => '0010', 'type' => 'L', 'comp_material_code' => 'P0RA00-000W10-00048-0001600F', 'comp_desc' => 'Nonwovens Spunbond P0RA00-000W10-00048', 'comp_qty' => 2.934, 'uom' => 'KG', 'length_per_unit' => null, 'waste_jumbo' => 4.76, 'remark' => null, 'lebar' => null],
-            ['fk_trs_bom_h_id' => 15, 'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00048', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BS-PM', 'product_qty' => 3.680, 'base_uom_header' => 'KG', 'item_number' => '0020', 'type' => 'L', 'comp_material_code' => '3P_BMMJCT70000', 'comp_desc' => 'CORE 3" 8 MM X 1.6 M CHIP BOARD', 'comp_qty' => 1.000, 'uom' => 'PC', 'length_per_unit' => null, 'waste_jumbo' => null, 'remark' => null, 'lebar' => null],
-
-            // Group for fk_trs_bom_h_id = 20 (P0RA00-000W10-00060)
-            ['fk_trs_bom_h_id' => 20, 'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BS-SC', 'product_qty' => 22.228, 'base_uom_header' => 'KG', 'item_number' => '0010', 'type' => 'L', 'comp_material_code' => '1P_EDMNRMMN00', 'comp_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060', 'comp_qty' => 27.540, 'uom' => 'KG', 'length_per_unit' => null, 'waste_jumbo' => 19.39, 'remark' => null, 'lebar' => null],
-            ['fk_trs_bom_h_id' => 20, 'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BS-SC', 'product_qty' => 22.228, 'base_uom_header' => 'KG', 'item_number' => '0020', 'type' => 'L', 'comp_material_code' => '3P_BMMJCT70000', 'comp_desc' => 'CORE 3" 8 MM X 1.320 M CHIP BOARD', 'comp_qty' => 1.700, 'uom' => 'PC', 'length_per_unit' => null, 'waste_jumbo' => null, 'remark' => null, 'lebar' => null],
-
-             // Group for fk_trs_bom_h_id = 28 (P0RAH0-000110-00070)
-            ['fk_trs_bom_h_id' => 28, 'header_desc' => 'Nonwovens Spunbond P0RAH0-000110-00070', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BE-JVS', 'product_qty' => 58.000, 'base_uom_header' => 'KG', 'item_number' => '0010', 'type' => 'L', 'comp_material_code' => 'P0RAH0-000110-00070', 'comp_desc' => 'Nonwovens Spunbond P0RAH0-000110-00070', 'comp_qty' => 59.450, 'uom' => 'KG', 'length_per_unit' => null, 'waste_jumbo' => 8.85, 'remark' => null, 'lebar' => null],
-            ['fk_trs_bom_h_id' => 28, 'header_desc' => 'Nonwovens Spunbond P0RAH0-000110-00070', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BE-JVS', 'product_qty' => 58.000, 'base_uom_header' => 'KG', 'item_number' => '0020', 'type' => 'L', 'comp_material_code' => '3P_BMMJCT70000', 'comp_desc' => 'CORE 3" 8 MM X 0.800 M CHIP BOARD', 'comp_qty' => 1.700, 'uom' => 'PC', 'length_per_unit' => null, 'waste_jumbo' => null, 'remark' => null, 'lebar' => null],
-
-             // Group for fk_trs_bom_h_id = 30 (P0RAH0-000R25-00070)
-            ['fk_trs_bom_h_id' => 30, 'header_desc' => 'Nonwovens Spunbond P0RAH0-000R25-00070', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BE-JVS', 'product_qty' => 58.000, 'base_uom_header' => 'KG', 'item_number' => '0010', 'type' => 'L', 'comp_material_code' => '1P_EDMNRMMN00', 'comp_desc' => 'Nonwovens Spunbond P0RAH0-000R25-00070', 'comp_qty' => 59.450, 'uom' => 'KG', 'length_per_unit' => null, 'waste_jumbo' => 5.86, 'remark' => null, 'lebar' => null],
-            ['fk_trs_bom_h_id' => 30, 'header_desc' => 'Nonwovens Spunbond P0RAH0-000R25-00070', 'plant' => '1001', 'usage' => '1', 'alt_bom_no' => '1', 'valid_from' => '2021-08-01', 'alternative_bom_text' => '01.08.2021-BE-JVS', 'product_qty' => 58.000, 'base_uom_header' => 'KG', 'item_number' => '0020', 'type' => 'L', 'comp_material_code' => '3P_BMMJCT70000', 'comp_desc' => 'CORE 3" 8 MM X 0.050 M CHIP BOARD', 'comp_qty' => 1.700, 'uom' => 'PC', 'length_per_unit' => null, 'waste_jumbo' => null, 'remark' => null, 'lebar' => null],
-        ];
-
-        $insertData = array_map(fn($item) => array_merge($item, [
-             'isactive' => 1, 'created_at' => $now, 'updated_at' => $now, 'user_create' => 'Seeder', 'user_update' => 'Seeder',
-        ]), $data);
-
-        DB::table('trs_bom_d')->insert($insertData);
-    }
-
-    /**
-     * Seeds the mst_material table based on data from BOM tables.
-     */
-    private function seedMstMaterial(): void
-    {
-        $this->command->info('Seeding mst_material table...');
-        $now = Carbon::now();
-        $bomHMaterials = DB::table('trs_bom_h')->pluck('material_fg_sfg')->filter();
-        $bomDMaterials = DB::table('trs_bom_d')->pluck('comp_material_code')->filter();
-        $allUniqueMaterials = $bomHMaterials->concat($bomDMaterials)->unique()->values();
+        $bomData = $this->getBomData();
         
-        $materialsToInsert = [];
-        $this->command->getOutput()->progressStart($allUniqueMaterials->count());
-
-        foreach ($allUniqueMaterials as $materialCode) {
-            $bomHRecord = DB::table('trs_bom_h')->where('material_fg_sfg', $materialCode)->first();
-            $bomDRecord = DB::table('trs_bom_d')->where('comp_material_code', $materialCode)->first();
-            $productName = $bomDRecord->comp_desc ?? ($bomHRecord->product ?? 'Unknown Product');
-            
-            $firstPart = explode('-', $materialCode)[0];
-            $idMatGroup = substr($firstPart, 0, 2);
-            $matG1 = substr($firstPart, 2, 2);
-            $matG2 = substr($firstPart, 4, 3);
-            $matG3 = substr($firstPart, 7, 3);
-
-            $materialsToInsert[] = [
-                'kode_baru_fg' => $materialCode, 'id_mat_group' => $idMatGroup, 'customer' => 'INTERNAL',
-                'product_name' => substr($productName, 0, 25), 'division' => '10', 'mat_g1' => $matG1,
-                'mat_g2' => $matG2, 'mat_g3' => $matG3, 'keterangan' => $productName,
-                'length' => $bomHRecord->length ?? ($bomDRecord->length_per_unit ?? null),
-                'width' => $bomHRecord->width ?? ($bomDRecord->lebar ?? null), 'weight' => null,
-                'alt_uom' => 'KG', 'top_load' => null, 'created_at' => $now, 'updated_at' => $now,
-                'user_create' => 'Seeder', 'user_update' => 'Seeder', 'it_update' => null,
-                'status' => '1', 'isactive' => '1',
+        foreach ($bomData as $group) {
+            // Insert header data
+            $headerData = [
+                'mat_type' => $group['header']['mat_type'],
+                'resource' => $group['header']['resource'],
+                'capacity' => $group['header']['capacity'],
+                'width' => $group['header']['width'],
+                'length' => $group['header']['length'],
+                'product' => $group['header']['product'],
+                'process' => $group['header']['process'],
+                'material_fg_sfg_kode_lama' => $group['header']['material_fg_sfg_kode_lama'],
+                'material_fg_sfg' => $group['header']['material_fg_sfg'],
+                'isactive' => 1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+                'user_create' => 'seeder',
+                'user_update' => 'seeder',
             ];
-            $this->command->getOutput()->progressAdvance();
+
+            $headerId = DB::table('trs_bom_h')->insertGetId($headerData);
+
+            // Insert detail data
+            foreach ($group['details'] as $detail) {
+                $detailData = [
+                    'fk_trs_bom_h_id' => $headerId,
+                    'header_desc' => $detail['header_desc'],
+                    'plant' => $detail['plant'],
+                    'usage' => $detail['usage'],
+                    'alt_bom_no' => $detail['alt_bom_no'],
+                    'valid_from' => $detail['valid_from'] ? Carbon::createFromFormat('d.m.Y', $detail['valid_from'])->format('Y-m-d') : null,
+                    'alternative_bom_text' => $detail['alternative_bom_text'],
+                    'product_qty' => $detail['product_qty'],
+                    'base_uom_header' => $detail['base_uom_header'],
+                    'item_number' => $detail['item_number'],
+                    'type' => $detail['type'],
+                    'comp_material_code' => $detail['comp_material_code'],
+                    'comp_desc' => $detail['comp_desc'],
+                    'comp_qty' => $detail['comp_qty'],
+                    'uom' => $detail['uom'],
+                    'wip_material' => $detail['wip_material'],
+                    'length_per_unit' => $detail['length_per_unit'],
+                    'waste_jumbo' => $detail['waste_jumbo'],
+                    'remark' => $detail['remark'],
+                    'gsm' => null, // Tidak ada di Excel
+                    'extra_panjang' => null, // Tidak ada di Excel
+                    'jumbo' => null, // Tidak ada di Excel
+                    'rewind' => null, // Tidak ada di Excel
+                    'berat_sfg' => null, // Tidak ada di Excel
+                    'lebar' => null, // Tidak ada di Excel
+                    'isactive' => 1,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                    'user_create' => 'seeder',
+                    'user_update' => 'seeder',
+                ];
+
+                DB::table('trs_bom_d')->insert($detailData);
+            }
         }
 
-        foreach (array_chunk($materialsToInsert, 500) as $chunk) {
-            DB::table('mst_material')->insert($chunk);
+        // Clear existing data
+        DB::table('mst_material')->delete();
+
+        // Reset auto increment
+        DB::statement('ALTER TABLE mst_material AUTO_INCREMENT = 1');
+
+        $bomData = $this->getBomData();
+        $materials = [];
+
+        foreach ($bomData as $group) {
+            // Extract data dari header BOM
+            $header = $group['header'];
+            
+            // Buat entri material untuk FG/SFG dari header
+            $fgCode = $this->normalizeMaterialCode($header['material_fg_sfg']);
+            $materials[$fgCode] = [
+                'kode_baru_fg' => $fgCode,
+                'id_mat_group' => substr($header['mat_type'], 1), // Ambil angka dari ZFGD -> FGD
+                'customer' => 'DEFAULT',
+                'product_name' => substr($header['product'], 0, 25), // Truncate to 25 chars
+                'division' => '10',
+                'mat_g1' => substr($header['resource'], 0, 2),
+                'mat_g2' => substr($header['resource'], 2, 3),
+                'mat_g3' => '000',
+                'keterangan' => substr($header['process'] . ' - ' . $header['material_fg_sfg_kode_lama'], 0, 255),
+                'length' => $header['length'],
+                'width' => $header['width'],
+                'weight' => $header['capacity'],
+                'alt_uom' => 'KG',
+                'top_load' => null,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+                'user_create' => 'seeder',
+                'user_update' => 'seeder',
+                'it_update' => null,
+                'status' => '1',
+                'isactive' => '1',
+            ];
+
+            // Extract data dari detail BOM untuk komponen materials
+            foreach ($group['details'] as $detail) {
+                if (!empty($detail['comp_material_code'])) {
+                    $compCode = $this->normalizeMaterialCode($detail['comp_material_code']);
+                    
+                    if (!isset($materials[$compCode])) {
+                        $materials[$compCode] = [
+                            'kode_baru_fg' => $compCode,
+                            'id_mat_group' => $this->determineMatGroup($detail['comp_material_code'], $detail['type']),
+                            'customer' => 'DEFAULT',
+                            'product_name' => substr($detail['comp_desc'], 0, 25),
+                            'division' => '20',
+                            'mat_g1' => '00',
+                            'mat_g2' => '000',
+                            'mat_g3' => '000',
+                            'keterangan' => substr($detail['comp_desc'], 0, 255),
+                            'length' => $detail['length_per_unit'],
+                            'width' => null,
+                            'weight' => $detail['comp_qty'],
+                            'alt_uom' => substr($detail['uom'], 0, 3),
+                            'top_load' => null,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                            'user_create' => 'seeder',
+                            'user_update' => 'seeder',
+                            'it_update' => null,
+                            'status' => '1',
+                            'isactive' => '1',
+                        ];
+                    }
+                }
+            }
         }
 
-        $this->command->getOutput()->progressFinish();
+        // Insert semua material ke database
+        foreach ($materials as $material) {
+            DB::table('mst_material')->insert($material);
+        }
+    }
+
+    /**
+     * Normalize material code to fit in 29 characters
+     */
+    private function normalizeMaterialCode($code): string
+    {
+        $code = trim($code);
+        
+        // Jika kode terlalu panjang, truncate atau gunakan hash
+        if (strlen($code) > 29) {
+            // Coba truncate dulu
+            $truncated = substr($code, 0, 29);
+            
+            // Jika truncated code sudah ada, gunakan hash untuk uniqueness
+            if (in_array($truncated, array_keys($this->getExistingCodes()))) {
+                return substr($code, 0, 20) . '_' . substr(md5($code), 0, 8);
+            }
+            
+            return $truncated;
+        }
+        
+        return $code;
+    }
+
+    /**
+     * Simulate existing codes for collision detection
+     */
+    private function getExistingCodes(): array
+    {
+        return [];
+    }
+
+    /**
+     * Determine material group berdasarkan kode material dan type
+     */
+    private function determineMatGroup($materialCode, $type): string
+    {
+        $materialCode = trim($materialCode);
+        
+        if (str_starts_with($materialCode, '1P_')) return 'RM';
+        if (str_starts_with($materialCode, '2M_')) return 'MB';
+        if (str_starts_with($materialCode, '3P_')) return 'PK';
+        if (str_starts_with($materialCode, '3C_')) return 'PK';
+        if (str_starts_with($materialCode, '1R_')) return 'RC';
+        if (str_starts_with($materialCode, '7P')) return 'FG';
+        if (str_starts_with($materialCode, 'P0')) return 'SFG';
+        
+        return $type == 'L' ? 'RM' : '00';
+    }
+
+    private function getBomData(): array
+    {
+        return [
+            // Group 1: ZFGD - 1B08BD - PP Normal - Rewind Jumbo - 7PRYFN020-0178L
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B08BD',
+                    'capacity' => 120.00,
+                    'width' => 0.178,
+                    'length' => 2000.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => '7PRYFN020-0178L',
+                    'material_fg_sfg' => '7P0RA00-Y00U10-00020-0000178G',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RAH0-000I10-00070',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'B1-JVS',
+                        'product_qty' => 3.500,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => '7P0RAH0-000I10-00070-0000800E',
+                        'comp_desc' => 'Nonwovens Spunbond P0RAH0-000I10-00070',
+                        'comp_qty' => 3.845,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 8.98,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RAH0-000I10-00070',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'B1-JVS',
+                        'product_qty' => 3.500,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 2: ZSFG - 1B0808 - PP Normal - Spinning - PRYFN020
+            [
+                'header' => [
+                    'mat_type' => 'ZSFG',
+                    'resource' => '1B0808',
+                    'capacity' => 234.00,
+                    'width' => 1.8,
+                    'length' => 2000.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Spinning',
+                    'material_fg_sfg_kode_lama' => 'PRYFN020',
+                    'material_fg_sfg' => 'P0RA00-Y00U10-00020',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-MED',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_POLYMAXX0001',
+                        'comp_desc' => 'PP CHIPS POLYMAXX1105SC',
+                        'comp_qty' => 11.100,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => 2000.00,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-MED',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_EXXONBAG0001',
+                        'comp_desc' => 'PP CHIPS EXXON 3155E5 (BAG)',
+                        'comp_qty' => 11.100,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-MED',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_EXXONSILO001',
+                        'comp_desc' => 'PP CHIPS EXXON 3155E5 (SILO)',
+                        'comp_qty' => 11.100,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-MED',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0040',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_POLYMAXX0002',
+                        'comp_desc' => 'PP CHIPS POLYMAXX1105RC',
+                        'comp_qty' => 11.100,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-MED',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0050',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_MOPLEN000002',
+                        'comp_desc' => 'PP CHIPS MOPLEN HP568S',
+                        'comp_qty' => 11.100,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-MED',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0060',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_TITAN0000002',
+                        'comp_desc' => 'PP CHIPS TITANPRO PM602',
+                        'comp_qty' => 11.100,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-MED',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0070',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_HYOSUNG00001',
+                        'comp_desc' => 'PP CHIPS GRANULES TOPILINE S805',
+                        'comp_qty' => 11.100,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-MED',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0080',
+                        'type' => 'L',
+                        'comp_material_code' => '1R_OLAHAN0000PM',
+                        'comp_desc' => 'RECYCLE CHIPS PP WHITE ( PM )',
+                        'comp_qty' => 10.000,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-MED',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0090',
+                        'type' => 'L',
+                        'comp_material_code' => '1R_OLAHAN0000PV',
+                        'comp_desc' => 'RECYCLE CHIPS PP WHITE ( PV )',
+                        'comp_qty' => 10.000,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-MED',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0100',
+                        'type' => 'L',
+                        'comp_material_code' => '2M_BLUE00000001',
+                        'comp_desc' => 'MASTERBATCH BLUE JD 8010',
+                        'comp_qty' => 2.300,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 3: ZFGD - 1B00B3 - PP Normal - Rewind Jumbo - 7P0RA00-000W10-00048-0001600A
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B00B3',
+                    'capacity' => 96.00,
+                    'width' => 1.600,
+                    'length' => 100.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => '7P0RA00-000W10-00048-0001600A',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'B3-PM',
+                        'product_qty' => 7.680,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => '7P0RA00-000W10- 00048-0001600F',
+                        'comp_desc' => 'Nonwovens Spunbond P0RA00-000W10- 00048',
+                        'comp_qty' => 8.064,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 4.76,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'B3-PM',
+                        'product_qty' => 7.680,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3C_040X04MM1600',
+                        'comp_desc' => 'CORE 40MM X 4MM X 1,6 M CHIP BOARD',
+                        'comp_qty' => 1.000,
+                        'uom' => 'PC',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'B3-PM',
+                        'product_qty' => 7.680,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 4: ZFGD - 1B08BD - PP Normal - Rewind Jumbo - 7P0RA00-000W10-00048-0001600F
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B08BD',
+                    'capacity' => 360.00,
+                    'width' => 1.600,
+                    'length' => 1500.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => '7P0RA00-000W10-00048-0001600F',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BD-PM',
+                        'product_qty' => 115.200,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => 'P0RA00-000W10- 00048',
+                        'comp_desc' => 'Nonwovens Spunbond P0RA00-000W10- 00048',
+                        'comp_qty' => 132.192,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 12.85,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BD-PM',
+                        'product_qty' => 115.200,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3C_03IN08MM1600',
+                        'comp_desc' => 'CORE 3" X 8MM X 1.600 M CHIP BOARD',
+                        'comp_qty' => 1.000,
+                        'uom' => 'PC',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BD-PM',
+                        'product_qty' => 115.200,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 5: ZSFG - 1B0808 - PP Normal - Spinning - P0RA00-000W10-00048
+            [
+                'header' => [
+                    'mat_type' => 'ZSFG',
+                    'resource' => '1B0808',
+                    'capacity' => 217.00,
+                    'width' => 1.8,
+                    'length' => 1500.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Spinning',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => 'P0RA00-000W10-00048',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-PM',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_POLYMAXX0001',
+                        'comp_desc' => 'PP CHIPS POLYMAXX1105SC',
+                        'comp_qty' => 14.290,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => 2000.00,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-PM',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_EXXONBAG0001',
+                        'comp_desc' => 'PP CHIPS EXXON 3155E5 (BAG)',
+                        'comp_qty' => 14.285,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-PM',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_EXXONSILO001',
+                        'comp_desc' => 'PP CHIPS EXXON 3155E5 (SILO)',
+                        'comp_qty' => 14.285,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-PM',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0040',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_POLYMAXX0002',
+                        'comp_desc' => 'PP CHIPS POLYMAXX1105RC',
+                        'comp_qty' => 14.285,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-PM',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0050',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_MOPLEN000002',
+                        'comp_desc' => 'PP CHIPS MOPLEN HP568S',
+                        'comp_qty' => 14.285,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-PM',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0060',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_TITAN0000002',
+                        'comp_desc' => 'PP CHIPS TITANPRO PM602',
+                        'comp_qty' => 14.285,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Jumbo P0RA00-000W10- 00048',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-PM',
+                        'product_qty' => 100.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0070',
+                        'type' => 'L',
+                        'comp_material_code' => '1P_HYOSUNG00001',
+                        'comp_desc' => 'PP CHIPS GRANULES TOPILINE S805',
+                        'comp_qty' => 14.285,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 6: ZFGD - 1B08BD - PP Normal - Rewind Jumbo - 7P0RA00-000W10-00060-0001480B
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B08BD',
+                    'capacity' => 83.00,
+                    'width' => 1.480,
+                    'length' => 250.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => '7P0RA00-000W10-00060-0001480B',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-SC',
+                        'product_qty' => 22.200,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => 'P0RA00-000W10-00060',
+                        'comp_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'comp_qty' => 27.540,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 19.39,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-SC',
+                        'product_qty' => 22.200,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3C_03IN04MM1480',
+                        'comp_desc' => 'CORE 3" X 4MM X 1.480 M CHIP BOARD',
+                        'comp_qty' => 1.000,
+                        'uom' => 'PC',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-SC',
+                        'product_qty' => 22.200,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 7: ZFGD - 1B08BD - PP Normal - Rewind Jumbo - 7P0RA00-000W10-00060-0001320B
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B08BD',
+                    'capacity' => 74.00,
+                    'width' => 1.320,
+                    'length' => 250.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => '7P0RA00-000W10-00060-0001320B',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-SC',
+                        'product_qty' => 19.800,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => 'P0RA00-000W10-00060',
+                        'comp_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'comp_qty' => 27.540,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 28.10,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-SC',
+                        'product_qty' => 19.800,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3C_03IN04MM1320',
+                        'comp_desc' => 'CORE 3" X 4MM X 1.320 M CHIP BOARD',
+                        'comp_qty' => 1.000,
+                        'uom' => 'PC',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '08-SC',
+                        'product_qty' => 19.800,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 8: ZFGD - 1B06BC - PP Normal - Rewind Jumbo - 7P0RA00-000W10-00060-0001080B
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B06BC',
+                    'capacity' => 61.00,
+                    'width' => 1.080,
+                    'length' => 250.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => '7P0RA00-000W10-00060-0001080B',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '06-SC',
+                        'product_qty' => 16.200,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => 'P0RA00-000W10-00060',
+                        'comp_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'comp_qty' => 19.508,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 16.96,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '06-SC',
+                        'product_qty' => 16.200,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3C_03IN04MM1080',
+                        'comp_desc' => 'CORE 3" X 4MM X 1.080 M CHIP BOARD',
+                        'comp_qty' => 1.000,
+                        'uom' => 'PC',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '06-SC',
+                        'product_qty' => 16.200,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 9: ZFGD - 1B06BC - PP Normal - Rewind Jumbo - 7P0RA00-000W10-00060-0001200B
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B06BC',
+                    'capacity' => 68.00,
+                    'width' => 1.200,
+                    'length' => 250.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => '7P0RA00-000W10-00060-0001200B',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '06-SC',
+                        'product_qty' => 18.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => 'P0RA00-000W10-00060',
+                        'comp_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'comp_qty' => 19.508,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 7.73,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '06-SC',
+                        'product_qty' => 18.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3C_03IN04MM1200',
+                        'comp_desc' => 'CORE 3" X 4MM X 1.200 M CHIP BOARD',
+                        'comp_qty' => 1.000,
+                        'uom' => 'PC',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-000W10-00060',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => '06-SC',
+                        'product_qty' => 18.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 10: ZFGD - 1B10BE - PP Normal - Rewind Jumbo - 7P0RAH0-000I10-00070-0000800E
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B10BE',
+                    'capacity' => 308.00,
+                    'width' => 0.800,
+                    'length' => 1000.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => '7P0RAH0-000I10-00070-0000800E',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RAH0-000I10-00070',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BE-JVS',
+                        'product_qty' => 56.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => 'P0RAH0-000I10-00070',
+                        'comp_desc' => 'Nonwovens Spunbond P0RAH0-000I10-00070',
+                        'comp_qty' => 59.483,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 5.85,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RAH0-000I10-00070',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BE-JVS',
+                        'product_qty' => 56.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3C_03IN08MM0800',
+                        'comp_desc' => 'CORE 3" X 8MM X 0.800 M CHIP BOARD',
+                        'comp_qty' => 1.000,
+                        'uom' => 'PC',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RAH0-000I10-00070',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BE-JVS',
+                        'product_qty' => 56.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 11: ZFGD - 1B00B1 - PP Normal - Rewind Jumbo - 7P0RAH0-000I10-00070-0000050E
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B00B1',
+                    'capacity' => 98.00,
+                    'width' => 0.050,
+                    'length' => 1000.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => '7P0RAH0-000I10-00070-0000050E',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BD-MED',
+                        'product_qty' => 7.120,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => 'P0RA00-Y00U10-00020',
+                        'comp_desc' => 'Nonwovens Spunbond P0RA00-Y00U10-00020',
+                        'comp_qty' => 9.130,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 22.02,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BD-MED',
+                        'product_qty' => 7.120,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3C_03IN08MM0178',
+                        'comp_desc' => 'CORE  3" X 8MM X 0.178 M CHIP BOARD',
+                        'comp_qty' => 1.000,
+                        'uom' => 'PC',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RA00-Y00U10-00020',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BD-MED',
+                        'product_qty' => 7.120,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 12: ZFGD - 1B10BE - PP Normal - Rewind Jumbo - 7P0RAH0-000R25-00070-0000800E
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B10BE',
+                    'capacity' => 308.00,
+                    'width' => 0.800,
+                    'length' => 1000.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => '7P0RAH0-000R25-00070-0000800E',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RAH0-000R25-00070',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BE-JVS',
+                        'product_qty' => 56.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => 'P0RAH0-000R25-00070',
+                        'comp_desc' => 'Nonwovens Spunbond P0RAH0-000R25-00070',
+                        'comp_qty' => 59.483,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 5.85,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RAH0-000R25-00070',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BE-JVS',
+                        'product_qty' => 56.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3C_03IN08MM0800',
+                        'comp_desc' => 'CORE 3" X 8MM X 0.800 M CHIP BOARD',
+                        'comp_qty' => 1.000,
+                        'uom' => 'PC',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RAH0-000R25-00070',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'BE-JVS',
+                        'product_qty' => 56.000,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0030',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+            // Group 13: ZFGD - 1B00B1 - PP Normal - Rewind Jumbo - 7P0RAH0-000R25-00070-0000050E
+            [
+                'header' => [
+                    'mat_type' => 'ZFGD',
+                    'resource' => '1B00B1',
+                    'capacity' => 98.00,
+                    'width' => 0.050,
+                    'length' => 1000.00,
+                    'product' => 'PP Normal',
+                    'process' => 'Rewind Jumbo',
+                    'material_fg_sfg_kode_lama' => null,
+                    'material_fg_sfg' => '7P0RAH0-000R25-00070-0000050E',
+                ],
+                'details' => [
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RAH0-000R25-00070',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'B1-JVS',
+                        'product_qty' => 3.500,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0010',
+                        'type' => 'L',
+                        'comp_material_code' => '7P0RAH0-000R25-00070-0000800E',
+                        'comp_desc' => 'Nonwovens Spunbond P0RAH0-000R25-00070',
+                        'comp_qty' => 3.845,
+                        'uom' => 'KG',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => 8.98,
+                        'remark' => 'OK',
+                    ],
+                    [
+                        'header_desc' => 'Nonwovens Spunbond P0RAH0-000R25-00070',
+                        'plant' => '1001',
+                        'usage' => '1',
+                        'alt_bom_no' => '1',
+                        'valid_from' => '01.08.2021',
+                        'alternative_bom_text' => 'B1-JVS',
+                        'product_qty' => 3.500,
+                        'base_uom_header' => 'KG',
+                        'item_number' => '0020',
+                        'type' => 'L',
+                        'comp_material_code' => '3P_06MICCT00080',
+                        'comp_desc' => 'HDPE 0,6 MM X  80 CM CLEAR TUBULAR',
+                        'comp_qty' => 1.700,
+                        'uom' => 'M',
+                        'wip_material' => null,
+                        'length_per_unit' => null,
+                        'waste_jumbo' => null,
+                        'remark' => null,
+                    ],
+                ],
+            ],
+        ];
     }
 }
