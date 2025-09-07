@@ -75,5 +75,78 @@ memakai layout sublink.
 13. Notifikasi(Query) = Query Ini Akan Muncul Di Samping List Menu, berisi query dengan hasilharus 1 data dan harus memakai alias “notif”
 Contoh query untuk menu users : “select count(*) as 'notofikasi' from users where isactive = '1'”
 
+### Komponen Utama Framework:
+
+#### 1. **Sistem Tabel Konfigurasi**
+- `sys_roles` - Manajemen role/peran pengguna
+- `sys_gmenu` - Group menu (Master, Transaction, Report, System)
+- `sys_dmenu` - Detail menu (submenu dalam setiap group)
+- `sys_auth` - Authorization matrix (role vs menu permissions)
+- `sys_table` - Konfigurasi field dan validasi untuk form dinamis
+- `sys_enum` - Master data untuk dropdown dan pilihan
+- `users` - Data pengguna dengan field `idroles` untuk multiple roles
+
+#### 2. **Sistem Role & Authorization**
+```php
+// Role Structure
+'admins'  -> Admin (full access)
+'ppic01'  -> Production Planning 01
+'ppic02'  -> Production Planning 02  
+'itdept'  -> IT Department
+```
+
+#### 3. **Layout System (6 Jenis Layout)**
+- **Manual**: Custom views dengan folder struktur `views/{gmenu}/{url}/`
+- **Standard**: CRUD dengan 1 primary key
+- **Master**: CRUD dengan multiple primary keys
+- **System**: Header-Detail dengan 2 bagian tampilan
+- **Report**: Filter + Result report
+- **SubLink**: Detail dari link lain (mirip System)
+
+#### 4. **Dynamic Form Generation**
+Framework menggunakan tabel `sys_table` untuk generate form otomatis:
+```php
+// Field Types Available:
+'char', 'string', 'email', 'enum', 'image', 'join', 
+'number', 'password', 'text', 'hidden', 'date', 
+'file', 'search', 'currency', 'sublink'
+
+// Validation Rules stored in database
+'required|max:100|min:4'
+'required|exists:mst_produk,pdrk_id'
+```
+
+#### 5. **Routing Pattern**
+```php
+// Dynamic routing untuk semua menu
+Route::get('/{page}', [PageController::class, 'index'])
+Route::post('/{page}', [PageController::class, 'index']) 
+Route::get('/{page}/{action}', [PageController::class, 'index'])
+Route::get('/{page}/{action}/{id}', [PageController::class, 'index'])
+
+// PageController sebagai router yang mengarahkan ke controller spesifik
+// berdasarkan URL dan layout yang dipilih
+```
+
+#### 6. **Controller Pattern**
+```php
+// Setiap layout memiliki controller base:
+- StandardController -> untuk layout 'standr'
+- MasterController -> untuk layout 'master'  
+- SystemController -> untuk layout 'system'
+- TranscController -> untuk layout 'transc'
+- SublnkController -> untuk layout 'sublnk'
+- Custom Controllers -> untuk layout 'manual'
+```
+
+### Alur Kerja Framework:
+
+1. **Menu Loading**: Sistem membaca `sys_gmenu` dan `sys_dmenu` berdasarkan role user
+2. **Authorization Check**: Validasi permission dari `sys_auth` 
+3. **Dynamic Routing**: URL diteruskan ke PageController
+4. **Controller Selection**: Berdasarkan layout, pilih controller yang sesuai
+5. **Form Generation**: Untuk non-manual layout, generate form dari `sys_table`
+6. **Data Processing**: CRUD operations dengan validation rules dari database
+
 # Alur Modifikasi Framework Layout Manual
 Acuan: informasi untuk perubahan kode pada views/transc/trslod itu yang boleh diedit hanya bagian conten sebagai acuan saya sudah menandai dengan membeikan command pada transc/auto dimana kode mana saja yang boleh diedit dengan memberikan tanda {{-- Boleh Diedit}}
