@@ -151,8 +151,8 @@
                         "paginate": {
                             "first": "Pertama",
                             "last": "Terakhir",
-                            "next": "Selanjutnya",
-                            "previous": "Sebelumnya"
+                            "next": "Next",
+                            "previous": "Previous"
                         }
                     },
                     "pageLength": 5,  // Maksimal 5 data per halaman
