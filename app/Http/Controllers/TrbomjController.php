@@ -146,31 +146,45 @@ class TrbomjController extends Controller
      */
     public function show($data)
     {
-        //check decrypt
+        // Dekripsi id detail BOM
         try {
             $id = decrypt($data['idencrypt']);
         } catch (DecryptException $e) {
             $id = "";
         }
 
-        // Ambil data detail yang aktif
-        $list = DB::table('trs_bom_d')
+        // Ambil data detail yang aktif (baris yang dipilih)
+        $selectedRow = DB::table('trs_bom_d')
             ->where('trs_bom_d_id', $id)
-            ->where('isactive', '1')  // String '1' untuk enum
+            ->where('isactive', '1')
             ->first();
 
-        // check data list
-        if ($list) {
-            $data['list'] = $list;
-            // return page menu
+        if ($selectedRow) {
+            // Ambil data header BOM
+            $bom = DB::table('trs_bom_h')
+                ->where('trs_bom_h_id', $selectedRow->fk_trs_bom_h_id)
+                ->where('isactive', '1')
+                ->first();
+
+            // Ambil semua baris detail BOM
+            $allRows = DB::table('trs_bom_d')
+                ->where('fk_trs_bom_h_id', $selectedRow->fk_trs_bom_h_id)
+                ->where('isactive', '1')
+                ->orderBy('item_number', 'asc')
+                ->orderBy('trs_bom_d_id', 'asc')
+                ->get();
+
+            $data['bom'] = $bom;
+            $data['selectedRow'] = $selectedRow;
+            $data['allRows'] = $allRows;
+            $data['list'] = $selectedRow; // untuk kebutuhan lama
+
             return view($data['url'], $data);
         } else {
-            //if not exist
             $data['url_menu'] = 'error';
             $data['title_group'] = 'Error';
             $data['title_menu'] = 'Error';
             $data['errorpages'] = 'Data Not Found or Inactive!';
-            //return error page
             return view("pages.errorpages", $data);
         }
     }
