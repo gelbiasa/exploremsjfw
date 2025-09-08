@@ -30,369 +30,131 @@
     </div>
     <div class="container-fluid py-4">
         <div class="row">
-            <div class="col-md-6">
-                <div class="card">
+            <div class="col-md-12"> {{-- sejajarkan panjang card --}}
+                <div class="card shadow-sm">
                     <form role="form" method="POST" action="{{ URL::to($url_menu . '/' . $idencrypt) }}"
                         enctype="multipart/form-data" id="{{ $dmenu }}-form">
                         @csrf
                         @method('PUT')
                         <div class="card-body">
-                            <p class="text-uppercase text-sm">View {{ $title_menu }}</p>
-                            <hr class="horizontal dark mt-0">
-                            <div class="row">
 
-                                {{-- BOLEH Diedit --}}
-                                
-                                {{-- retrieve table header --}}
-                                {{-- @foreach ($table_header as $header)
-                                    @php
-                                        $primary = false;
-                                        $generateid = false;
-                                        foreach ($table_primary as $p) {
-                                            $primary == false
-                                                ? ($p->field == $header->field
-                                                    ? ($primary = true)
-                                                    : ($primary = false))
-                                                : '';
-                                            $generateid == false
-                                                ? ($p->generateid == $header->field
-                                                    ? ($generateid = true)
-                                                    : ($generateid = false))
-                                                : '';
-                                        }
-                                    @endphp
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            @if ($header->type != 'hidden') --}}
-                                                {{-- display label alias on type field not hidden --}}
-                                                {{-- <label for="example-text-input"
-                                                    class="form-control-label">{{ $header->alias }}</label>
-                                            @endif --}}
-                                            {{-- field type char and string --}}
-                                            {{-- @if ($header->type == 'char' || $header->type == 'string')
-                                                <input
-                                                    class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
-                                                    type="text" disabled {{ $primary ? ' key=true' : '' }}
-                                                    value="{{ $list ? $list->{$header->field} : old($header->field) }}"
-                                                    name="{{ $header->field }}" maxlength="{{ $header->length }}">
-                                                @if ($header->note != '')
-                                                    <p class='text-secondary text-xs pt-1 px-1'>
-                                                        {{ '*) ' . $header->note }}
-                                                    </p>
-                                                @endif --}}
-                                                {{-- field type text --}}
-                                            {{-- @elseif ($header->type == 'text')
-                                                <textarea class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
-                                                    disabled name="{{ $header->field }}" maxlength="{{ $header->length }}">{{ $list ? $list->{$header->field} : old($header->field) }}</textarea>
-                                                @if ($header->note != '')
-                                                    <p class='text-secondary text-xs pt-1 px-1'>
-                                                        {{ '*) ' . $header->note }}
-                                                    </p>
-                                                @endif --}}
-                                                {{-- field type email --}}
-                                            {{-- @elseif ($header->type == 'email')
-                                                <input
-                                                    class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
-                                                    type="email" disabled {{ $primary ? ' key=true' : '' }}
-                                                    value="{{ $list ? $list->{$header->field} : old($header->field) }}"
-                                                    name="{{ $header->field }}" maxlength="{{ $header->length }}">
-                                                @if ($header->note != '')
-                                                    <p class='text-secondary text-xs pt-1 px-1'>
-                                                        {{ '*) ' . $header->note }}
-                                                    </p>
-                                                @endif --}}
-                                                {{-- field type number --}}
-                                            {{-- @elseif ($header->type == 'number')
-                                                <input
-                                                    class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
-                                                    type="number" disabled {{ $primary ? ' key=true' : '' }}
-                                                    value="{{ $list ? $list->{$header->field} : old($header->field) }}"
-                                                    name="{{ $header->field }}" max="{{ $header->length }}">
-                                                @if ($header->note != '')
-                                                    <p class='text-secondary text-xs pt-1 px-1'>
-                                                        {{ '*) ' . $header->note }}
-                                                    </p>
-                                                @endif --}}
-                                                {{-- field type currency --}}
-                                            {{-- @elseif ($header->type == 'currency')
-                                                <input
-                                                    class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
-                                                    type="number" disabled {{ $primary ? ' key=true' : '' }}
-                                                    value="{{ $list ? $list->{$header->field} : old($header->field) }}"
-                                                    name="{{ $header->field }}" max="{{ $header->length }}">
-                                                @if ($header->note != '')
-                                                    <p class='text-secondary text-xs pt-1 px-1'>
-                                                        {{ '*) ' . $header->note }}
-                                                    </p>
-                                                @endif --}}
-                                                {{-- field type search --}}
-                                            {{-- @elseif ($header->type == 'search')
-                                                <div class="flex flex-col mb-2 input-group">
-                                                    <input name="{{ $header->field }}"
-                                                        class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }}  {{ $header->class }}"
-                                                        type="text" disabled {{ $primary ? ' key=true' : '' }}
-                                                        value="{{ $list ? $list->{$header->field} : old($header->field) }}">
-                                                    <span class="input-group-text bg-primary text-light icon-modal-search"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#searchModal{{ $header->field }}"
-                                                        style="border-color:#d2d6da;border-left:3px solid #d2d6da;cursor: pointer;display:none;"><i
-                                                            class="fas fa-search"></i></span>
-                                                </div> --}}
-                                                <!-- Modal -->
-                                                {{-- <div class="modal fade" id="searchModal{{ $header->field }}" tabindex="-1"
-                                                    role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="searchModalLabel">
-                                                                    List Data
-                                                                </h5>
-                                                                <button type="button" class="btn-close"
-                                                                    data-bs-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            @if ($header->query != '')
-                                                                @php
-                                                                    $table_result = DB::select($header->query);
-                                                                @endphp
-                                                            @endif
-                                                            <div class="modal-body">
-                                                                <table class="table display" id="list_{{ $dmenu }}">
-                                                                    @if ($table_result)
-                                                                        <thead class="thead-light"
-                                                                            style="background-color: #00b7bd4f;">
-                                                                            <tr>
-                                                                                <th width="20px">Action</th>
-                                                                                @foreach ($table_result as $result)
-                                                                                    @php
-                                                                                        $sAsArray = array_keys(
-                                                                                            (array) $result,
-                                                                                        );
-                                                                                    @endphp
-                                                                                @endforeach
-                                                                                @foreach ($sAsArray as $modal_h)
-                                                                                    <th>{{ $modal_h }}</th>
-                                                                                @endforeach
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            @foreach ($table_result as $modal_d)
-                                                                                <tr>
-                                                                                    @foreach ($table_result as $result)
-                                                                                        @php
-                                                                                            $field = array_keys(
-                                                                                                (array) $result,
-                                                                                            );
-                                                                                        @endphp
-                                                                                    @endforeach
-                                                                                    <td width="20px"><span
-                                                                                            class="btn badge bg-primary badge-lg"
-                                                                                            onclick="select_modal('{{ $modal_d->{$field[0]} }}')"><i
-                                                                                                class="bi bi-check-circle me-1"></i>
-                                                                                            Select</span>
-                                                                                    </td>
-                                                                                    @foreach ($field as $header_field)
-                                                                                        @php
-                                                                                            $string = $header_field;
-                                                                                        @endphp
-                                                                                        <td
-                                                                                            class="text-sm font-weight-normal">
-                                                                                            {{ $modal_d->$string }}
-                                                                                        </td>
-                                                                                    @endforeach
-                                                                                </tr>
-                                                                            @endforeach
-                                                                        </tbody>
-                                                                    @endif
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                @if ($header->note != '')
-                                                    <p class='text-secondary text-xs pt-1 px-1'>
-                                                        {{ '*) ' . $header->note }}
-                                                    </p>
-                                                @endif
-                                                <script>
-                                                    function select_modal(id, name) {
-                                                        $('input[name="{{ $header->field }}"]').val(id);
-                                                        $('#searchModal{{ $header->field }}').modal('hide');
-                                                    }
-                                                </script> --}}
-                                                {{-- field type image --}}
-                                            {{-- @elseif ($header->type == 'image')
-                                                <div class="col-sm-auto">
-                                                    <div class="position-relative">
-                                                        <div>
-                                                            <label for="file-input" style="left: -5px !important;"
-                                                                id="{{ $header->field }}edit"
-                                                                class="btn btn-xxl btn-icon-only bg-gradient-primary position-absolute bottom-0 mb-n2 disabled">
-                                                                <i class="fa fa-pen top-0" data-bs-toggle="tooltip"
-                                                                    disabled data-bs-placement="top" title=""
-                                                                    aria-hidden="true" data-bs-original-title="Edit Image"
-                                                                    aria-label="Edit Image"></i>
-                                                                <span class="sr-only">Edit Image</span>
-                                                            </label>
-                                                            <span
-                                                                class="h-12 w-12 rounded-full overflow-hidden bg-gray-100">
-                                                                <img src="{{ asset('/storage' . '/' . $list->{$header->field}) }}"
-                                                                    id="{{ $header->field }}preview" alt="image"
-                                                                    data-bs-toggle="modal" data-bs-target="#imageModal"
-                                                                    class="w-30 border-radius-lg shadow-sm">
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <input class="form-control {{ $header->class }}" type="file"
-                                                    value="{{ $list ? $list->{$header->field} : old($header->field) }}"
-                                                    id="{{ $header->field }}" name="{{ $header->field }}"
-                                                    style="display: none;">
-                                                <p class='text-primary text-xs pt-3 mb-0'>Maksimal Size :
-                                                    <b>{{ $header->length }} KB</b>
-                                                </p>
-                                                @if ($header->note != '')
-                                                    <p class='text-primary text-xs pt-1'>
-                                                        {{ $header->note }}
-                                                    </p>
-                                                @else
-                                                    <p class='text-primary text-xs pt-1'>Format Image :
-                                                        <b>PNG,JPG,JPEG</b>
-                                                    </p>
-                                                @endif --}}
-                                                <!-- Modal -->
-                                                {{-- <div class="modal fade" id="imageModal" tabindex="-1" role="dialog"
-                                                    aria-labelledby="imageModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="imageModalLabel">Preview Image
-                                                                </h5>
-                                                                <button type="button" class="btn-close"
-                                                                    data-bs-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <img src="{{ asset('/storage' . '/' . $list->{$header->field}) }}"
-                                                                    alt="image"
-                                                                    class="w-100 border-radius-lg shadow-sm">
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <script>
-                                                    {{ $header->field }}.onchange = evt => {
-                                                        const [file] = {{ $header->field }}.files
-                                                        if (file) {
-                                                            {{ $header->field . 'preview' }}.src = URL.createObjectURL(file)
-                                                        }
-                                                    }
-                                                    $('#{{ $header->field }}edit').click(function() {
-                                                        $('input[name="{{ $header->field }}"]').click();
+                            {{-- Detail Transaksi BOM --}}
+                            <h5 class="mb-2">Detail Transaksi BOM</h5>
+                            <hr class="border border-secondary opacity-25">
 
-                                                    });
-                                                </script> --}}
-                                                {{-- field type password --}}
-                                            {{-- @elseif ($header->type == 'password')
-                                                <div class="flex flex-col mb-2 input-group pass">
-                                                    <input class="form-control {{ $header->class }}" disabled
-                                                        {{ $primary ? ' key=true type=hidden' : ($header->filter == '1' ? ' type=password' : ' type=hidden') }}
-                                                        value="{{ $list ? '' : $header->default }}"
-                                                        name="{{ $header->field }}" max="{{ $header->length }}">
-                                                    <span class="input-group-text" id="button-addon"
-                                                        style="border-color:#d2d6da;"><i class="fas fa-eye showpass"
-                                                            style="cursor: pointer;"></i></span>
-                                                </div>
-                                                <p class='text-primary text-xs pt-1'>Default Password :
-                                                    <b>{{ $header->default }}</b>
-                                                </p> --}}
-                                                {{-- field type file --}}
-                                            {{-- @elseif ($header->type == 'file')
-                                                <input class="form-control {{ $header->class }}" type="file" disabled
-                                                    id="{{ $header->field }}edit"
-                                                    value="{{ $list ? $list->{$header->field} : old($header->field) }}"
-                                                    name="{{ $header->field }}">
-                                                <p class='text-info text-xs pt-1 px-1 mb-1'>
-                                                    {{ $list ? $list->{$header->field} : old($header->field) }}
-                                                </p>
-                                                <p class='text-primary text-xs pt-3 mb-0'>Maksimal Size :
-                                                    <b>{{ $header->length }} KB</b>
-                                                </p>
-                                                @if ($header->note != '')
-                                                    <p class='text-primary text-xs pt-1'>
-                                                        {{ $header->note }}
-                                                    </p>
-                                                @else
-                                                    <p class='text-primary text-xs pt-1'>Format File :
-                                                        <b>pdf,xls,xlsx</b>
-                                                    </p>
-                                                @endif --}}
-                                                {{-- field type date --}}
-                                            {{-- @elseif ($header->type == 'date')
-                                                <input
-                                                    class="form-control {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
-                                                    type="date" disabled {{ $primary ? ' key=true' : '' }}
-                                                    value="{{ $list ? $list->{$header->field} : old($header->field) }}"
-                                                    name="{{ $header->field }}">
-                                                @if ($header->note != '')
-                                                    <p class='text-secondary text-xs pt-1 px-1'>
-                                                        {{ '*) ' . $header->note }}
-                                                    </p>
-                                                @endif --}}
-                                                {{-- field type hidden --}}
-                                            {{-- @elseif ($header->type == 'hidden')
-                                                <input class="form-control {{ $header->class }}" type="hidden"
-                                                    value="{{ $header->default }}" name="{{ $header->field }}"
-                                                    max="{{ $header->length }}"> --}}
-                                                {{-- field type enum --}}
-                                            {{-- @elseif ($header->type == 'enum')
-                                                <select
-                                                    class="form-select {{ $header->primary == '1' ? ' bg-dark text-light' : '' }} {{ $header->class }}"
-                                                    name="{{ $header->field }}" disabled
-                                                    {{ $primary || $generateid ? ' key=true' : '' }}>
-                                                    <option value=""></option>
-                                                    @if ($header->query != '')
-                                                        @php
-                                                            $data_query = DB::select($header->query);
-                                                        @endphp
-                                                        @foreach ($data_query as $q)
-                                                            <?php $sAsArray = array_values((array) $q); ?>
-                                                            <option value="{{ $sAsArray[0] }}"
-                                                                {{ $sAsArray[0] == $list->{$header->field} ? 'selected' : '' }}>
-                                                                {{ $sAsArray[1] }}
-                                                            </option>
-                                                        @endforeach
-                                                    @endif
-                                                </select> --}}
-                                                {{-- @if ($header->note != '')
-                                                    <p class='text-secondary text-xs pt-1 px-1'>
-                                                        {{ '*) ' . $header->note }}
-                                                    </p>
-                                                @endif
-                                                <script>
-                                                    $(this).val('{{ $list->{$header->field} }}')
-                                                </script>
-                                            @endif
-                                            @error($header->field)
-                                                <p class='text-danger text-xs pt-1'> {{ $message }} </p>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                @endforeach --}}
-                            </div>
-                            <div class="row px-2 py-2">
-                                <div class="col-lg">
-                                    <div class="nav-wrapper"><code>Note : <i aria-hidden="true" style=""
-                                                class="fas fa-circle text-dark"></i> Data primary key</code></div>
+                            {{-- Row 1 --}}
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Resources</label>
+                                    <div class="form-control bg-light">{{ $bom->resource }}</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Material FG/SFG</label>
+                                    <div class="form-control bg-light">{{ $bom->material_fg_sfg }}</div>
                                 </div>
                             </div>
-                            <hr class="horizontal dark">
-                        </div>
-                        <div class="card-footer align-items-center pt-0 pb-2">
+
+                            {{-- Row 2 --}}
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Mat Type</label>
+                                    <div class="form-control bg-light">{{ $bom->mat_type }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Width</label>
+                                    <div class="form-control bg-light">{{ $bom->width }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Length</label>
+                                    <div class="form-control bg-light">{{ $bom->length }}</div>
+                                </div>
+                            </div>
+
+                            {{-- Row 3 --}}
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Capacity</label>
+                                    <div class="form-control bg-light">{{ $bom->capacity }}</div>
+                                </div>
+                            </div>
+
+                            <hr class="border border-secondary opacity-25">
+
+                            {{-- Baris Yang Dipilih --}}
+                            <h6 class="fw-bold">Baris Yang Dipilih</h6>
+                            <div class="table-responsive" style="max-height: 250px; overflow-y:auto;">
+                                <table class="table table-bordered table-striped align-middle">
+                                    <thead class="table-info text-center">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>ALTERNATIVE BOM TEXT</th>
+                                            <th>Product QTY</th>
+                                            <th>Base UOM Header</th>
+                                            <th>Item Number</th>
+                                            <th>Type</th>
+                                            <th>COMP MATERIAL CODE (18)</th>
+                                            <th>COMP DESC (40)</th>
+                                            <th>COMP QTY</th>
+                                            <th>UOM</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if($selectedRow)
+                                            <tr>
+                                                <td>1</td>
+                                                <td>{{ $selectedRow->alternative_bom_text }}</td>
+                                                <td>{{ $selectedRow->product_qty }}</td>
+                                                <td>{{ $selectedRow->base_uom_header }}</td>
+                                                <td>{{ $selectedRow->item_number }}</td>
+                                                <td>{{ $selectedRow->type }}</td>
+                                                <td>{{ $selectedRow->comp_material_code }}</td>
+                                                <td>{{ $selectedRow->comp_desc }}</td>
+                                                <td>{{ $selectedRow->comp_qty }}</td>
+                                                <td>{{ $selectedRow->uom }}</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <hr class="border border-secondary opacity-25">
+
+                            {{-- Semua Baris Pada Data Transaction BOM --}}
+                            <h6 class="fw-bold">Semua Baris Pada Data Transaction BOM</h6>
+                            <div class="table-responsive" style="max-height: 300px; overflow-y:auto;">
+                                <table class="table table-bordered table-striped align-middle">
+                                    <thead class="table-info text-center">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>ALTERNATIVE BOM TEXT</th>
+                                            <th>Product QTY</th>
+                                            <th>Base UOM Header</th>
+                                            <th>Item Number</th>
+                                            <th>Type</th>
+                                            <th>COMP MATERIAL CODE (18)</th>
+                                            <th>COMP DESC (40)</th>
+                                            <th>COMP QTY</th>
+                                            <th>UOM</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($allRows as $index => $row)
+                                            <tr>
+                                                <td>{{ $index+1 }}</td>
+                                                <td>{{ $row->alternative_bom_text }}</td>
+                                                <td>{{ $row->product_qty }}</td>
+                                                <td>{{ $row->base_uom_header }}</td>
+                                                <td>{{ $row->item_number }}</td>
+                                                <td>{{ $row->type }}</td>
+                                                <td>{{ $row->comp_material_code }}</td>
+                                                <td>{{ $row->comp_desc }}</td>
+                                                <td>{{ $row->comp_qty }}</td>
+                                                <td>{{ $row->uom }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
 
                         </div>
                     </form>
@@ -400,6 +162,7 @@
             </div>
         </div>
     </div>
+
     {{-- check flag js on dmenu --}}
     @if ($jsmenu == '1')
         @if (view()->exists("js.{$dmenu}"))
