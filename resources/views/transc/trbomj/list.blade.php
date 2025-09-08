@@ -213,10 +213,14 @@
             $('.dt-button').removeClass('dt-button');
 
             //setting button add
-            var btnadd = $('.btn-add').parents('.btn');
-            btnadd.removeClass('btn-secondary');
-            btnadd.addClass('btn btn-primary');
-            btnadd.attr('onclick', "window.location='{{ URL::to($url_menu . '/add') }}'");
+                var btnadd = $('.btn-add').parents('.btn');
+                btnadd.removeClass('btn-secondary');
+                btnadd.addClass('btn btn-primary');
+                btnadd.removeAttr('onclick'); // Remove default redirect
+                btnadd.on('click', function(e) {
+                    e.preventDefault();
+                    $('#modalAddRows').modal('show');
+                });
             
             // Event handler untuk button detail
             $(document).on('click', '.btn-detail', function(e) {
@@ -237,6 +241,13 @@
             <?= $authorize->print == '0' ? "$('.buttons-print').remove();" : '' ?>
         });
 
+            // Event untuk tombol konfirmasi modal
+            $('#confirmAddRows').on('click', function() {
+                var jumlahBaris = $('#jumlahBaris').val();
+                if (jumlahBaris) {
+                    window.location = "{{ URL::to($url_menu . '/add') }}?rows=" + jumlahBaris;
+                }
+            });
         // function detail ajax
         function detail(id, gmenu, dmenu, material_name) {
             console.log('Detail function called with:', {id, gmenu, dmenu, material_name});
@@ -408,3 +419,32 @@
         }
     </script>
 @endpush
+<!-- Modal Pilih Jumlah Baris -->
+<div class="modal fade" id="modalAddRows" tabindex="-1" aria-labelledby="modalAddRowsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAddRowsLabel">Pilih Jumlah Baris</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="jumlahBaris" class="form-label">Berapa baris yang ingin ditambahkan?</label>
+                    <input type="number" min="1" max="100" class="form-control" id="jumlahBaris" list="presetRows" value="1" placeholder="Masukkan jumlah baris...">
+                    <datalist id="presetRows">
+                        <option value="1">
+                        <option value="2">
+                        <option value="3">
+                        <option value="5">
+                        <option value="10">
+                    </datalist>
+                    <small class="form-text text-muted">Anda bisa memilih atau mengetik jumlah baris sendiri.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="confirmAddRows">Tambah</button>
+            </div>
+        </div>
+    </div>
+</div>
