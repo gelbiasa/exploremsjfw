@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\TrbomjController;
 
 Route::get('/', function () {
 	return redirect('/dashboard');
@@ -34,4 +35,12 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::put('/{page}/{action}', [PageController::class, 'index'])->name(''); //route update
 	Route::delete('/{page}/{action}', [PageController::class, 'index'])->name(''); //route delete(destroy)
 	Route::get('/{page}/{action}/{id}', [PageController::class, 'index'])->name(''); //route CRUD
+	
 });
+Route::get('/api/resource-list', [TrbomjController::class, 'getAllResources']);
+Route::get('/api/component-materials', [TrbomjController::class, 'getComponentMaterials']);
+Route::get('/resource/search', [TrbomjController::class, 'searchResource'])->name('resource.search');
+Route::get('/material/search', [TrbomjController::class, 'searchMaterial'])->name('material.search');
+Route::get('/bom/detail/{material}', [TrbomjController::class, 'getDetail'])->name('bom.detail');
+Route::get('/comp/search', [TrbomjController::class, 'searchComp'])->name('comp.search');
+
