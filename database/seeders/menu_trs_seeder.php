@@ -66,6 +66,8 @@ class menu_trs_seeder extends Seeder
             'show' => '1',
             'js' => '1'
         ]);
+
+        // Contoh
         DB::table('sys_dmenu')->insert([
             'gmenu' => 'transc',
             'dmenu' => 'trordr',
@@ -79,6 +81,36 @@ class menu_trs_seeder extends Seeder
             'show' => '1',
             'js' => '1'
         ]);
+        DB::table('sys_dmenu')->insert([
+            'gmenu' => 'master',
+            'dmenu' => 'mscust',
+            'urut' => 2,
+            'name' => 'Master Customer',
+            'url' => 'mscust',
+            'icon' => 'fas fa-file-download',
+            'tabel' => 'mst_customer',
+            'notif' => '',
+            'layout' => 'master',
+            'show' => '1',
+            'js' => '1'
+        ]);
+        DB::table('sys_dmenu')->insert([
+            'gmenu' => 'master',
+            'dmenu' => 'mspdrk',
+            'urut' => 3,
+            'name' => 'Master Produk',
+            'url' => 'mspdrk',
+            'icon' => 'fas fa-file-download',
+            'tabel' => 'mst_produk',
+            'notif' => '',
+            'layout' => 'master',
+            'show' => '1',
+            'js' => '1'
+        ]);
+
+        // END COntoh
+
+
         //insert auth
         DB::table('sys_auth')->insert([
             'idroles' => 'ppic01',
@@ -110,6 +142,38 @@ class menu_trs_seeder extends Seeder
             'rules' => '0',
             'isactive' => '1'
         ]);
+
+        // Contoh
+        DB::table('sys_auth')->insert([
+            'idroles' => 'ppic01',
+            'dmenu' => 'mscust',
+            'gmenu' => 'master',
+            'add' => '1',
+            'edit' => '1',
+            'delete' => '1',
+            'approval' => '1',
+            'value' => '1',
+            'print' => '1',
+            'excel' => '1',
+            'pdf' => '1',
+            'rules' => '0',
+            'isactive' => '1'
+        ]);
+        DB::table('sys_auth')->insert([
+            'idroles' => 'ppic01',
+            'dmenu' => 'mspdrk',
+            'gmenu' => 'master',
+            'add' => '1',
+            'edit' => '1',
+            'delete' => '1',
+            'approval' => '1',
+            'value' => '1',
+            'print' => '1',
+            'excel' => '1',
+            'pdf' => '1',
+            'rules' => '0',
+            'isactive' => '1'
+        ]);
         DB::table('sys_auth')->insert([
             'idroles' => 'ppic01',
             'dmenu' => 'trordr',
@@ -125,6 +189,9 @@ class menu_trs_seeder extends Seeder
             'rules' => '0',
             'isactive' => '1'
         ]);
+
+        // END Contoh
+
         DB::table('sys_auth')->insert([
             'idroles' => 'ppic02',
             'dmenu' => 'trbomm',
