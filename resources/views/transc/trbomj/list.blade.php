@@ -176,6 +176,10 @@
                     buttons: [
                         {
                             text: '<i class="fas fa-plus me-1 text-lg btn-add"> </i><span class="font-weight-bold"> Tambah',
+                            action: function (e, dt, node, config) {
+                                // Tampilkan modal pilih jumlah baris
+                                $('#modalAddRows').modal('show');
+                            }
                         },
                         {
                             extend: 'excelHtml5',
