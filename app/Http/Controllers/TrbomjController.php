@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Format_Helper;
 use App\Helpers\Function_Helper;
+use App\Models\Transaksi\TrsBomDModel;
+use App\Models\Transaksi\TrsBomHModel;
 use App\Models\User;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
@@ -14,6 +16,113 @@ use Illuminate\Validation\Rule;
 
 class TrbomjController extends Controller
 {
+    /**
+     * Get material components for a given material FG/SFG
+     */
+    public function getMaterialComponents(Request $request)
+    {
+        $material = $request->get('material');
+        $header = TrsBomHModel::where('material_fg_sfg', $material)->first();
+        $result = [
+            'product_qty' => '',
+            'base_uom_header' => '',
+            'components' => []
+        ];
+        if ($header) {
+            // Ambil satu detail yang memiliki product_qty dan base_uom_header (jika ada)
+            $detail = TrsBomDModel::where('fk_trs_bom_h_id', $header->trs_bom_h_id)
+                ->whereNotNull('product_qty')
+                ->whereNotNull('base_uom_header')
+                ->first();
+            $result['product_qty'] = $detail ? $detail->product_qty : '';
+            $result['base_uom_header'] = $detail ? $detail->base_uom_header : '';
+            // Ambil semua komponen
+            $details = TrsBomDModel::where('fk_trs_bom_h_id', $header->trs_bom_h_id)->get();
+            foreach ($details as $d) {
+                $result['components'][] = [
+                    'comp_material_code' => $d->comp_material_code,
+                    'comp_desc' => $d->comp_desc,
+                    'comp_qty' => $d->comp_qty,
+                    'uom' => $d->uom,
+                    'type' => $d->type
+                ];
+            }
+        }
+        return response()->json($result);
+    }
+
+    /**
+     * Get all component materials for modal selection
+     */
+    public function getComponentMaterials(Request $request)
+    {
+        $comps = DB::table('mst_material')
+            ->select('kode_baru_fg as material_code', 'product_name as description', 'alt_uom as uom')
+            ->orderBy('kode_baru_fg', 'asc')
+            ->get();
+        return response()->json($comps);
+    }
+
+    /**
+     * Create new component material from manual input
+     */
+    public function createComponentMaterial(Request $request)
+    {
+        $code = $request->get('material_code');
+        $desc = $request->get('description');
+        $uom = $request->get('uom');
+        // Insert to mst_material jika belum ada
+        $exists = DB::table('mst_material')->where('kode_baru_fg', $code)->exists();
+        if (!$exists) {
+            DB::table('mst_material')->insert([
+                'kode_baru_fg' => $code,
+                'product_name' => $desc,
+                'alt_uom' => $uom,
+                'created_at' => now(),
+                'updated_at' => now(),
+                'status' => '1',
+                'isactive' => '1'
+            ]);
+        }
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Search component material by code (for manual input)
+     */
+    public function searchMaterialByCode(Request $request)
+    {
+        $code = $request->get('code');
+        $comp = DB::table('mst_material')
+            ->where('kode_baru_fg', $code)
+            ->select('product_name as description', 'alt_uom as uom')
+            ->first();
+        return response()->json($comp);
+    }
+    /**
+     * Get all active resources for modal selection (AJAX)
+     */
+    public function getAllResources()
+    {
+        $resources = DB::table('trs_bom_h')
+            ->where('isactive', '1')
+            ->select('resource', 'mat_type', 'width', 'length', 'capacity')
+            ->orderBy('resource', 'asc')
+            ->get();
+
+        return response()->json($resources);
+    }
+    public function searchComp(Request $request)
+    {
+        $query = $request->get('q');
+        $comps = DB::table('mst_material')
+            ->where('kode_baru_fg', 'LIKE', "%$query%")
+            ->orWhere('product_name', 'LIKE', "%$query%")
+            ->select('kode_baru_fg as material_code', 'product_name as description', 'alt_uom as uom')
+            ->limit(10)
+            ->get();
+        return response()->json($comps);
+    }
     /**
      * Show the application dashboard.
      *
@@ -303,4 +412,47 @@ class TrbomjController extends Controller
 
         return redirect($data['url_menu'])->with($data);
     }
+
+    public function searchResource(Request $request)
+    {
+        $query = $request->get('q');
+
+        $resources = TrsBomHModel::where('resource', 'LIKE', "%$query%")
+            ->select('trs_bom_h_id', 'resource', 'mat_type', 'width', 'length', 'capacity')
+            ->limit(10)
+            ->get();
+
+        return response()->json($resources);
+    }
+
+    public function searchMaterial(Request $request)
+    {
+        $query = $request->get('q');
+
+        $materials = TrsBomHModel::where('material_fg_sfg', 'LIKE', "%$query%")
+            ->select('trs_bom_h_id', 'material_fg_sfg', 'base_uom_header', 'product')
+            ->limit(10)
+            ->get();
+
+        return response()->json($materials);
+    }
+
+    public function getDetail($material)
+    {
+        // cari header BOM sesuai material_fg_sfg
+        $header = TrsBomHModel::where('material_fg_sfg', $material)->first();
+
+        if(!$header){
+            return response()->json(['detail' => []]);
+        }
+
+        $detail = TrsBomDModel::where('fk_trs_bom_h_id', $header->trs_bom_h_id)
+            ->get();
+
+        return response()->json([
+            'header' => $header,
+            'detail' => $detail
+        ]);
+    }
+
 }
