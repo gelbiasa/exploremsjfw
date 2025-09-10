@@ -37,10 +37,3 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/{page}/{action}/{id}', [PageController::class, 'index'])->name(''); //route CRUD
 	
 });
-Route::get('/api/resource-list', [TrbomjController::class, 'getAllResources']);
-Route::get('/api/component-materials', [TrbomjController::class, 'getComponentMaterials']);
-Route::get('/resource/search', [TrbomjController::class, 'searchResource'])->name('resource.search');
-Route::get('/material/search', [TrbomjController::class, 'searchMaterial'])->name('material.search');
-Route::get('/bom/detail/{material}', [TrbomjController::class, 'getDetail'])->name('bom.detail');
-Route::get('/comp/search', [TrbomjController::class, 'searchComp'])->name('comp.search');
-

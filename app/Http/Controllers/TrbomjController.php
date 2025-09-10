@@ -17,118 +17,10 @@ use Illuminate\Validation\Rule;
 class TrbomjController extends Controller
 {
     /**
-     * Get material components for a given material FG/SFG
-     */
-    public function getMaterialComponents(Request $request)
-    {
-        $material = $request->get('material');
-        $header = TrsBomHModel::where('material_fg_sfg', $material)->first();
-        $result = [
-            'product_qty' => '',
-            'base_uom_header' => '',
-            'components' => []
-        ];
-        if ($header) {
-            // Ambil satu detail yang memiliki product_qty dan base_uom_header (jika ada)
-            $detail = TrsBomDModel::where('fk_trs_bom_h_id', $header->trs_bom_h_id)
-                ->whereNotNull('product_qty')
-                ->whereNotNull('base_uom_header')
-                ->first();
-            $result['product_qty'] = $detail ? $detail->product_qty : '';
-            $result['base_uom_header'] = $detail ? $detail->base_uom_header : '';
-            // Ambil semua komponen
-            $details = TrsBomDModel::where('fk_trs_bom_h_id', $header->trs_bom_h_id)->get();
-            foreach ($details as $d) {
-                $result['components'][] = [
-                    'comp_material_code' => $d->comp_material_code,
-                    'comp_desc' => $d->comp_desc,
-                    'comp_qty' => $d->comp_qty,
-                    'uom' => $d->uom,
-                    'type' => $d->type
-                ];
-            }
-        }
-        return response()->json($result);
-    }
-
-    /**
-     * Get all component materials for modal selection
-     */
-    public function getComponentMaterials(Request $request)
-    {
-        $comps = DB::table('mst_material')
-            ->select('kode_baru_fg as material_code', 'product_name as description', 'alt_uom as uom')
-            ->orderBy('kode_baru_fg', 'asc')
-            ->get();
-        return response()->json($comps);
-    }
-
-    /**
-     * Create new component material from manual input
-     */
-    public function createComponentMaterial(Request $request)
-    {
-        $code = $request->get('material_code');
-        $desc = $request->get('description');
-        $uom = $request->get('uom');
-        // Insert to mst_material jika belum ada
-        $exists = DB::table('mst_material')->where('kode_baru_fg', $code)->exists();
-        if (!$exists) {
-            DB::table('mst_material')->insert([
-                'kode_baru_fg' => $code,
-                'product_name' => $desc,
-                'alt_uom' => $uom,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'status' => '1',
-                'isactive' => '1'
-            ]);
-        }
-        return response()->json(['success' => true]);
-    }
-
-    /**
-     * Search component material by code (for manual input)
-     */
-    public function searchMaterialByCode(Request $request)
-    {
-        $code = $request->get('code');
-        $comp = DB::table('mst_material')
-            ->where('kode_baru_fg', $code)
-            ->select('product_name as description', 'alt_uom as uom')
-            ->first();
-        return response()->json($comp);
-    }
-    /**
-     * Get all active resources for modal selection (AJAX)
-     */
-    public function getAllResources()
-    {
-        $resources = DB::table('trs_bom_h')
-            ->where('isactive', '1')
-            ->select('resource', 'mat_type', 'width', 'length', 'capacity')
-            ->orderBy('resource', 'asc')
-            ->get();
-
-        return response()->json($resources);
-    }
-    public function searchComp(Request $request)
-    {
-        $query = $request->get('q');
-        $comps = DB::table('mst_material')
-            ->where('kode_baru_fg', 'LIKE', "%$query%")
-            ->orWhere('product_name', 'LIKE', "%$query%")
-            ->select('kode_baru_fg as material_code', 'product_name as description', 'alt_uom as uom')
-            ->limit(10)
-            ->get();
-        return response()->json($comps);
-    }
-    /**
      * Show the application dashboard.
      *
      * @return \Illuminate\View\View
      */
-
     public function index($data)
     {
         // function helper
@@ -209,11 +101,9 @@ class TrbomjController extends Controller
         // function helper
         $syslog = new Function_Helper;
 
-        //check decrypt
-        try {
-            $id = decrypt($data['idencrypt']);
-        } catch (DecryptException $e) {
-            $id = "";
+        // Handle AJAX requests untuk data resources, materials, components
+        if (request()->ajax() || request()->wantsJson()) {
+            return $this->handleAjaxRequests();
         }
 
         if ($data['authorize']->add == '1') {
@@ -237,17 +127,96 @@ class TrbomjController extends Controller
      */
     public function store($data)
     {
-        // Implementation for store method
-
         // function helper
-        $data['format'] = new Format_Helper;
         $syslog = new Function_Helper;
 
-        // For now, redirect back with success message
-        Session::flash('message', 'Tambah Data Berhasil!');
-        Session::flash('class', 'success');
+        try {
+            DB::beginTransaction();
 
-        return redirect($data['url_menu'])->with($data);
+            // Validasi input dasar
+            request()->validate([
+                'bom_data' => 'required|array|min:1',
+                'bom_data.*.resources' => 'required|string',
+                'bom_data.*.material' => 'required|string',
+                'bom_data.*.capacity' => 'required|numeric|min:1',
+                'bom_data.*.alt_bom_text' => 'required|string',
+                'bom_data.*.detail' => 'required|array|min:1',
+            ], [
+                'required' => ':attribute tidak boleh kosong',
+                'min' => ':attribute minimal :min',
+                'numeric' => ':attribute harus berupa angka',
+                'array' => ':attribute harus berupa array'
+            ]);
+
+            $bomDataArray = request('bom_data');
+
+            foreach ($bomDataArray as $index => $bomData) {
+                // Insert ke tabel trs_bom_h
+                $bomHeaderId = DB::table('trs_bom_h')->insertGetId([
+                    'resource' => $bomData['resources'],
+                    'mat_type' => $bomData['mat_type'] ?? '',
+                    'material_fg_sfg' => $bomData['material'],
+                    'capacity' => $bomData['capacity'],
+                    'width' => $bomData['width'] ?? 0,
+                    'length' => $bomData['length'] ?? 0,
+                    'alt_bom_text' => $bomData['alt_bom_text'],
+                    'user_create' => session('username', 'system'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'isactive' => '1'
+                ]);
+
+                // Insert detail ke trs_bom_d
+                if (isset($bomData['detail']) && is_array($bomData['detail'])) {
+                    foreach ($bomData['detail'] as $detailData) {
+                        // Skip jika comp_material_code kosong
+                        if (empty($detailData['comp_material_code'])) {
+                            continue;
+                        }
+
+                        DB::table('trs_bom_d')->insert([
+                            'fk_trs_bom_h_id' => $bomHeaderId,
+                            'material_fg_sfg' => $detailData['material_fg_sfg'] ?? $bomData['material'],
+                            'alt_bom_text' => $detailData['alt_bom_text'] ?? $bomData['alt_bom_text'],
+                            'product_qty' => $detailData['product_qty'] ?? 1,
+                            'base_uom_header' => $detailData['base_uom_header'] ?? '',
+                            'item_number' => $detailData['item_number'] ?? '0010',
+                            'type' => $detailData['type'] ?? 'L',
+                            'comp_material_code' => $detailData['comp_material_code'],
+                            'comp_desc' => $detailData['comp_desc'] ?? '',
+                            'comp_qty' => $detailData['comp_qty'] ?? 1,
+                            'uom' => $detailData['uom'] ?? '',
+                            'user_create' => session('username', 'system'),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                            'isactive' => '1'
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            // Log success
+            $syslog->log_insert('C', $data['dmenu'], 'Created BOM: ' . count($bomDataArray) . ' records', '1');
+
+            // Set success message
+            Session::flash('message', 'BOM berhasil dibuat! Total: ' . count($bomDataArray) . ' record');
+            Session::flash('class', 'success');
+
+            return redirect($data['url_menu']);
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            // Log error
+            $syslog->log_insert('E', $data['dmenu'], 'Create BOM Error: ' . $e->getMessage(), '0');
+
+            // Set error message
+            Session::flash('message', 'Error: ' . $e->getMessage());
+            Session::flash('class', 'danger');
+
+            return redirect()->back()->withInput();
+        }
     }
 
     /**
@@ -354,7 +323,6 @@ class TrbomjController extends Controller
     public function update($data)
     {
         // Implementation for update method
-
         // function helper
         $syslog = new Function_Helper;
 
@@ -370,8 +338,6 @@ class TrbomjController extends Controller
      */
     public function destroy($data)
     {
-        // Implementation for destroy method (soft delete)
-
         // function helper
         $syslog = new Function_Helper;
 
@@ -413,46 +379,167 @@ class TrbomjController extends Controller
         return redirect($data['url_menu'])->with($data);
     }
 
-    public function searchResource(Request $request)
+    /**
+     * Handle all AJAX requests for add form
+     */
+    private function handleAjaxRequests()
     {
-        $query = $request->get('q');
+        $action = request()->get('action');
 
-        $resources = TrsBomHModel::where('resource', 'LIKE', "%$query%")
-            ->select('trs_bom_h_id', 'resource', 'mat_type', 'width', 'length', 'capacity')
-            ->limit(10)
+        switch ($action) {
+            case 'get_resources':
+                return $this->getAllResources();
+            case 'search_material':
+                return $this->searchMaterial();
+            case 'get_material_components':
+                return $this->getMaterialComponents();
+            case 'get_component_materials':
+                return $this->getComponentMaterials();
+            case 'create_material':
+                return $this->createComponentMaterial();
+            case 'search_material_by_code':
+                return $this->searchMaterialByCode();
+            case 'search_comp':
+                return $this->searchComp();
+            default:
+                return response()->json(['error' => 'Invalid action'], 400);
+        }
+    }
+
+    /**
+     * Get all active resources for modal selection
+     */
+    private function getAllResources()
+    {
+        $resources = DB::table('trs_bom_h')
+            ->where('isactive', '1')
+            ->select('resource', 'mat_type', 'width', 'length', 'capacity')
+            ->orderBy('resource', 'asc')
             ->get();
 
         return response()->json($resources);
     }
 
-    public function searchMaterial(Request $request)
+    /**
+     * Search material by query
+     */
+    private function searchMaterial()
     {
-        $query = $request->get('q');
-
+        $query = request()->get('q');
         $materials = TrsBomHModel::where('material_fg_sfg', 'LIKE', "%$query%")
-            ->select('trs_bom_h_id', 'material_fg_sfg', 'base_uom_header', 'product')
+            ->select('trs_bom_h_id', 'material_fg_sfg as material_code', 'base_uom_header', 'product as description')
             ->limit(10)
             ->get();
 
         return response()->json($materials);
     }
 
-    public function getDetail($material)
+    /**
+     * Get material components for a given material FG/SFG
+     */
+    private function getMaterialComponents()
     {
-        // cari header BOM sesuai material_fg_sfg
+        $material = request()->get('material');
         $header = TrsBomHModel::where('material_fg_sfg', $material)->first();
+        $result = [
+            'product_qty' => '',
+            'base_uom_header' => '',
+            'components' => []
+        ];
 
-        if(!$header){
-            return response()->json(['detail' => []]);
+        if ($header) {
+            // Ambil satu detail yang memiliki product_qty dan base_uom_header (jika ada)
+            $detail = TrsBomDModel::where('fk_trs_bom_h_id', $header->trs_bom_h_id)
+                ->whereNotNull('product_qty')
+                ->whereNotNull('base_uom_header')
+                ->first();
+            
+            $result['product_qty'] = $detail ? $detail->product_qty : '';
+            $result['base_uom_header'] = $detail ? $detail->base_uom_header : '';
+            
+            // Ambil semua komponen
+            $details = TrsBomDModel::where('fk_trs_bom_h_id', $header->trs_bom_h_id)->get();
+            foreach ($details as $d) {
+                $result['components'][] = [
+                    'comp_material_code' => $d->comp_material_code,
+                    'comp_desc' => $d->comp_desc,
+                    'comp_qty' => $d->comp_qty,
+                    'uom' => $d->uom,
+                    'type' => $d->type
+                ];
+            }
         }
 
-        $detail = TrsBomDModel::where('fk_trs_bom_h_id', $header->trs_bom_h_id)
-            ->get();
-
-        return response()->json([
-            'header' => $header,
-            'detail' => $detail
-        ]);
+        return response()->json($result);
     }
 
+    /**
+     * Get all component materials for modal selection
+     */
+    private function getComponentMaterials()
+    {
+        $comps = DB::table('mst_material')
+            ->select('kode_baru_fg as material_code', 'product_name as description', 'alt_uom as uom')
+            ->orderBy('kode_baru_fg', 'asc')
+            ->get();
+
+        return response()->json($comps);
+    }
+
+    /**
+     * Create new component material from manual input
+     */
+    private function createComponentMaterial()
+    {
+        $code = request()->get('material_code');
+        $desc = request()->get('description');
+        $type = request()->get('type');
+        $uom = request()->get('uom');
+
+        // Insert to mst_material jika belum ada
+        $exists = DB::table('mst_material')->where('kode_baru_fg', $code)->exists();
+        if (!$exists) {
+            DB::table('mst_material')->insert([
+                'kode_baru_fg' => $code,
+                'product_name' => $desc,
+                'alt_uom' => $uom,
+                'created_at' => now(),
+                'updated_at' => now(),
+                'status' => '1',
+                'isactive' => '1'
+            ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Search component material by code (for manual input)
+     */
+    private function searchMaterialByCode()
+    {
+        $code = request()->get('code');
+        $comp = DB::table('mst_material')
+            ->where('kode_baru_fg', $code)
+            ->select('product_name as description', 'alt_uom as uom')
+            ->first();
+
+        return response()->json($comp);
+    }
+
+    /**
+     * Search component materials by query
+     */
+    private function searchComp()
+    {
+        $query = request()->get('q');
+        $comps = DB::table('mst_material')
+            ->where('kode_baru_fg', 'LIKE', "%$query%")
+            ->orWhere('product_name', 'LIKE', "%$query%")
+            ->select('kode_baru_fg as material_code', 'product_name as description', 'alt_uom as uom')
+            ->limit(10)
+            ->get();
+
+        return response()->json($comps);
+    }
 }
