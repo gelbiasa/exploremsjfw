@@ -186,7 +186,6 @@
                                 <tr>
                                     <th>Material Code</th>
                                     <th>Description</th>
-                                    <th>Type</th>
                                     <th>UOM</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -514,12 +513,10 @@ $(document).ready(function() {
                 tbody += `<tr>
                     <td>${comp.material_code || ''}</td>
                     <td>${comp.description || ''}</td>
-                    <td>${comp.type || ''}</td>
                     <td>${comp.uom || ''}</td>
                     <td><button type="button" class="btn btn-success btn-sm btn-select-component" 
                         data-code="${comp.material_code || ''}" 
                         data-desc="${comp.description || ''}" 
-                        data-type="${comp.type || ''}" 
                         data-uom="${comp.uom || ''}">Pilih</button></td>
                 </tr>`;
             });
