@@ -57,8 +57,8 @@ class LoginController extends Controller
             // Tentukan dashboard berdasarkan role user
             $dashboardUrl = $this->getDashboardUrl(auth()->user()->idroles);
             
-            // page dashboard sesuai role
-            return redirect()->intended($dashboardUrl);
+            // Selalu redirect ke dashboard sesuai role
+            return redirect($dashboardUrl);
         } elseif (Auth::attempt(['username' => $request->username, 'password' => $request->password, 'isactive' => '0'])) {
             Auth::logout();
             // set session
@@ -128,8 +128,8 @@ class LoginController extends Controller
             // Tentukan dashboard berdasarkan role user
             $dashboardUrl = $this->getDashboardUrl(auth()->user()->idroles);
             
-            // page dashboard sesuai role
-            return redirect()->intended($dashboardUrl);
+            // Selalu redirect ke dashboard sesuai role
+            return redirect($dashboardUrl);
         } elseif (Auth::attempt(['username' => $token[0], 'password' => openssl_decrypt(str_replace(['-', '_', '@'], ['+', '/', '='], $token[1]), env('ALG'), env('KEY'), 0, env('SCR')), 'isactive' => '0'])) {
             Auth::logout();
             // set session
