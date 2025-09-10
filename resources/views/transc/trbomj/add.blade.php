@@ -481,7 +481,7 @@ $(document).ready(function() {
             <td><input type="number" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][product_qty]" value="${productQty}" readonly /></td>
             <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][base_uom_header]" value="${baseUomHeader}" readonly /></td>
             <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][item_number]" value="${itemNumber}" readonly /></td>
-            <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][type]" value="${data.type || ''}" readonly /></td>
+                <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][type]" value="${typeof data.type !== 'undefined' && data.type !== '' ? data.type : 'L'}" readonly /></td>
             <td><div class="input-group">
                 <input type="text" class="form-control comp-material-search" name="bom_data[${tableIndex}][detail][${rowNumber}][comp_material_code]" value="${data.comp_material_code || ''}" autocomplete="off" />
                 <span class="input-group-text bg-info text-light comp-search-btn" style="cursor: pointer;" data-table-index="${tableIndex}" data-row-index="${rowNumber}">
@@ -597,19 +597,22 @@ $(document).ready(function() {
 
     // Select component material
     $(document).on('click', '.btn-select-component', function() {
-        let code = $(this).data('code');
-        let desc = $(this).data('desc');
-        let type = $(this).data('type');
-        let uom = $(this).data('uom');
-        
-        // Fill the specific row
-        let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
-        targetRow.find('input[name*="[comp_material_code]"]').val(code);
-        targetRow.find('input[name*="[comp_desc]"]').val(desc);
-        targetRow.find('input[name*="[type]"]').val(type);
-        targetRow.find('input[name*="[uom]"]').val(uom);
-        
-        $('#componentModal').modal('hide');
+    let code = $(this).data('code');
+    let desc = $(this).data('desc');
+    let type = $(this).data('type');
+    let uom = $(this).data('uom');
+
+    // Set type default 'L' jika kosong
+    let typeValue = (typeof type !== 'undefined' && type !== '') ? type : 'L';
+
+    // Fill the specific row
+    let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
+    targetRow.find('input[name*="[comp_material_code]"]').val(code);
+    targetRow.find('input[name*="[comp_desc]"]').val(desc);
+    targetRow.find('input[name*="[type]"]').val(typeValue);
+    targetRow.find('input[name*="[uom]"]').val(uom);
+
+    $('#componentModal').modal('hide');
     });
 
     // Create new material functionality
