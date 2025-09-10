@@ -263,9 +263,15 @@ $(document).ready(function() {
     // Load Resource Data from trs_bom_h
     function loadResourceData() {
         $.ajax({
-            url: '/api/resource-list', // Adjust endpoint as needed
+            url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
             type: 'GET',
             dataType: 'json',
+            data: {
+                action: 'get_resources'
+            },
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             success: function(data) {
                 allResources = data;
                 renderResourceTable(data);
@@ -353,10 +359,16 @@ $(document).ready(function() {
 
     function searchMaterials(keyword, index) {
         $.ajax({
-            url: '/api/material-search', // Adjust endpoint
+            url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
             type: 'GET',
-            data: { q: keyword },
+            data: { 
+                action: 'search_material',
+                q: keyword 
+            },
             dataType: 'json',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             success: function(data) {
                 renderMaterialDropdown(data, index);
             },
@@ -410,10 +422,16 @@ $(document).ready(function() {
 
     function loadMaterialComponents(material, index) {
         $.ajax({
-            url: '/api/material-components', // Adjust endpoint
+            url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
             type: 'GET',
-            data: { material: material },
+            data: { 
+                action: 'get_material_components',
+                material: material 
+            },
             dataType: 'json',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             success: function(data) {
                 let table = $(`#datatable-bom-${index}`).DataTable();
                 table.clear();
@@ -449,6 +467,202 @@ $(document).ready(function() {
         });
     }
 
+    // ========== COMPONENT MATERIAL SELECTION ==========
+    $(document).on('click', '.comp-search-btn', function() {
+        currentTargetIndex = $(this).data('table-index');
+        currentRowIndex = $(this).data('row-index');
+        $('#componentModal').modal('show');
+        loadComponentData();
+        $('#component_keyword').val('');
+    });
+
+    function loadComponentData() {
+        $.ajax({
+            url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
+            type: 'GET',
+            data: { action: 'get_component_materials' },
+            dataType: 'json',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(data) {
+                allComponents = data;
+                renderComponentTable(data);
+            },
+            error: function() {
+                $('#component_table').html('<tr><td colspan="5" class="text-center text-danger">Gagal mengambil data komponen</td></tr>');
+            }
+        });
+    }
+
+    // Component search in modal
+    $(document).on('input', '#component_keyword', function() {
+        let keyword = $(this).val().toLowerCase();
+        let filtered = allComponents.filter(function(comp) {
+            return (comp.material_code || '').toLowerCase().includes(keyword) ||
+                   (comp.description || '').toLowerCase().includes(keyword);
+        });
+        renderComponentTable(filtered);
+    });
+
+    function renderComponentTable(data) {
+        let tbody = '';
+        if(data.length === 0) {
+            tbody = '<tr><td colspan="5" class="text-center">Data tidak ditemukan</td></tr>';
+        } else {
+            data.forEach(function(comp) {
+                tbody += `<tr>
+                    <td>${comp.material_code || ''}</td>
+                    <td>${comp.description || ''}</td>
+                    <td>${comp.type || ''}</td>
+                    <td>${comp.uom || ''}</td>
+                    <td><button type="button" class="btn btn-success btn-sm btn-select-component" 
+                        data-code="${comp.material_code || ''}" 
+                        data-desc="${comp.description || ''}" 
+                        data-type="${comp.type || ''}" 
+                        data-uom="${comp.uom || ''}">Pilih</button></td>
+                </tr>`;
+            });
+        }
+        $('#component_table').html(tbody);
+    }
+
+    // Select component material
+    $(document).on('click', '.btn-select-component', function() {
+        let code = $(this).data('code');
+        let desc = $(this).data('desc');
+        let type = $(this).data('type');
+        let uom = $(this).data('uom');
+
+        // Set type default 'L' jika kosong
+        let typeValue = (typeof type !== 'undefined' && type !== '') ? type : 'L';
+
+        // Fill the specific row
+        let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
+        targetRow.find('input[name*="[comp_material_code]"]').val(code);
+        targetRow.find('input[name*="[comp_desc]"]').val(desc);
+        targetRow.find('input[name*="[type]"]').val(typeValue);
+        targetRow.find('input[name*="[uom]"]').val(uom);
+
+        $('#componentModal').modal('hide');
+    });
+
+    // Create new material functionality
+    $(document).on('click', '#create-new-material', function() {
+        let keyword = $('#component_keyword').val();
+        if(!keyword) {
+            Swal.fire('Warning', 'Masukkan kode material terlebih dahulu!', 'warning');
+            return;
+        }
+        
+        Swal.fire({
+            title: 'Buat Material Baru',
+            html: `
+                <div class="text-start">
+                    <div class="mb-3">
+                        <label class="form-label">Kode Material:</label>
+                        <input type="text" id="new-material-code" class="form-control" value="${keyword}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Deskripsi:</label>
+                        <input type="text" id="new-material-desc" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Type:</label>
+                        <input type="text" id="new-material-type" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">UOM:</label>
+                        <input type="text" id="new-material-uom" class="form-control">
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Simpan',
+            cancelButtonText: 'Batal',
+            preConfirm: () => {
+                let code = $('#new-material-code').val();
+                let desc = $('#new-material-desc').val();
+                let type = $('#new-material-type').val();
+                let uom = $('#new-material-uom').val();
+                
+                if(!code) {
+                    Swal.showValidationMessage('Kode material harus diisi!');
+                    return false;
+                }
+                
+                return { code, desc, type, uom };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Create new material via AJAX
+                $.ajax({
+                    url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
+                    type: 'POST',
+                    data: {
+                        action: 'create_material',
+                        material_code: result.value.code,
+                        description: result.value.desc,
+                        type: result.value.type,
+                        uom: result.value.uom,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(response) {
+                        // Fill the specific row with new material data
+                        let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
+                        targetRow.find('input[name*="[comp_material_code]"]').val(result.value.code);
+                        targetRow.find('input[name*="[comp_desc]"]').val(result.value.desc);
+                        targetRow.find('input[name*="[type]"]').val(result.value.type);
+                        targetRow.find('input[name*="[uom]"]').val(result.value.uom);
+                        
+                        $('#componentModal').modal('hide');
+                        Swal.fire('Berhasil', 'Material baru telah dibuat dan dipilih!', 'success');
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Gagal membuat material baru!', 'error');
+                    }
+                });
+            }
+        });
+    });
+
+    // Manual input for component material code
+    $(document).on('input', '.comp-material-search', function() {
+        let $this = $(this);
+        let code = $this.val();
+        let row = $this.closest('tr');
+        
+        if(code.length >= 3) {
+            // Search existing material
+            $.ajax({
+                url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
+                type: 'GET',
+                data: { 
+                    action: 'search_material_by_code',
+                    code: code 
+                },
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(data) {
+                    if(data) {
+                        row.find('input[name*="[comp_desc]"]').val(data.description || '');
+                        row.find('input[name*="[type]"]').val(data.type || '');
+                        row.find('input[name*="[uom]"]').val(data.uom || '');
+                    } else {
+                        // Clear related fields if not found
+                        row.find('input[name*="[comp_desc]"]').val('');
+                        row.find('input[name*="[type]"]').val('');
+                        row.find('input[name*="[uom]"]').val('');
+                    }
+                }
+            });
+        }
+    });
+
     // ========== ALTERNATIVE BOM TEXT ==========
     $(document).on('click', '.alt-bom-apply-btn', function() {
         let index = $(this).data('index');
@@ -481,7 +695,7 @@ $(document).ready(function() {
             <td><input type="number" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][product_qty]" value="${productQty}" readonly /></td>
             <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][base_uom_header]" value="${baseUomHeader}" readonly /></td>
             <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][item_number]" value="${itemNumber}" readonly /></td>
-                <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][type]" value="${typeof data.type !== 'undefined' && data.type !== '' ? data.type : 'L'}" readonly /></td>
+            <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][type]" value="${typeof data.type !== 'undefined' && data.type !== '' ? data.type : 'L'}" readonly /></td>
             <td><div class="input-group">
                 <input type="text" class="form-control comp-material-search" name="bom_data[${tableIndex}][detail][${rowNumber}][comp_material_code]" value="${data.comp_material_code || ''}" autocomplete="off" />
                 <span class="input-group-text bg-info text-light comp-search-btn" style="cursor: pointer;" data-table-index="${tableIndex}" data-row-index="${rowNumber}">
@@ -537,188 +751,6 @@ $(document).ready(function() {
             let row = this.node();
             $(row).find('td:first').text(rowIdx + 1);
         });
-    });
-
-    // ========== COMPONENT MATERIAL SELECTION ==========
-    $(document).on('click', '.comp-search-btn', function() {
-        currentTargetIndex = $(this).data('table-index');
-        currentRowIndex = $(this).data('row-index');
-        $('#componentModal').modal('show');
-        loadComponentData();
-        $('#component_keyword').val('');
-    });
-
-    function loadComponentData() {
-        $.ajax({
-            url: '/api/component-materials', // Adjust endpoint
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                allComponents = data;
-                renderComponentTable(data);
-            },
-            error: function() {
-                $('#component_table').html('<tr><td colspan="5" class="text-center text-danger">Gagal mengambil data komponen</td></tr>');
-            }
-        });
-    }
-
-    // Component search in modal
-    $(document).on('input', '#component_keyword', function() {
-        let keyword = $(this).val().toLowerCase();
-        let filtered = allComponents.filter(function(comp) {
-            return (comp.material_code || '').toLowerCase().includes(keyword) ||
-                   (comp.description || '').toLowerCase().includes(keyword);
-        });
-        renderComponentTable(filtered);
-    });
-
-    function renderComponentTable(data) {
-        let tbody = '';
-        if(data.length === 0) {
-            tbody = '<tr><td colspan="5" class="text-center">Data tidak ditemukan</td></tr>';
-        } else {
-            data.forEach(function(comp) {
-                tbody += `<tr>
-                    <td>${comp.material_code || ''}</td>
-                    <td>${comp.description || ''}</td>
-                    <td>${comp.type || ''}</td>
-                    <td>${comp.uom || ''}</td>
-                    <td><button type="button" class="btn btn-success btn-sm btn-select-component" 
-                        data-code="${comp.material_code || ''}" 
-                        data-desc="${comp.description || ''}" 
-                        data-type="${comp.type || ''}" 
-                        data-uom="${comp.uom || ''}">Pilih</button></td>
-                </tr>`;
-            });
-        }
-        $('#component_table').html(tbody);
-    }
-
-    // Select component material
-    $(document).on('click', '.btn-select-component', function() {
-    let code = $(this).data('code');
-    let desc = $(this).data('desc');
-    let type = $(this).data('type');
-    let uom = $(this).data('uom');
-
-    // Set type default 'L' jika kosong
-    let typeValue = (typeof type !== 'undefined' && type !== '') ? type : 'L';
-
-    // Fill the specific row
-    let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
-    targetRow.find('input[name*="[comp_material_code]"]').val(code);
-    targetRow.find('input[name*="[comp_desc]"]').val(desc);
-    targetRow.find('input[name*="[type]"]').val(typeValue);
-    targetRow.find('input[name*="[uom]"]').val(uom);
-
-    $('#componentModal').modal('hide');
-    });
-
-    // Create new material functionality
-    $(document).on('click', '#create-new-material', function() {
-        let keyword = $('#component_keyword').val();
-        if(!keyword) {
-            Swal.fire('Warning', 'Masukkan kode material terlebih dahulu!', 'warning');
-            return;
-        }
-        
-        Swal.fire({
-            title: 'Buat Material Baru',
-            html: `
-                <div class="text-start">
-                    <div class="mb-3">
-                        <label class="form-label">Kode Material:</label>
-                        <input type="text" id="new-material-code" class="form-control" value="${keyword}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Deskripsi:</label>
-                        <input type="text" id="new-material-desc" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Type:</label>
-                        <input type="text" id="new-material-type" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">UOM:</label>
-                        <input type="text" id="new-material-uom" class="form-control">
-                    </div>
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Simpan',
-            cancelButtonText: 'Batal',
-            preConfirm: () => {
-                let code = $('#new-material-code').val();
-                let desc = $('#new-material-desc').val();
-                let type = $('#new-material-type').val();
-                let uom = $('#new-material-uom').val();
-                
-                if(!code) {
-                    Swal.showValidationMessage('Kode material harus diisi!');
-                    return false;
-                }
-                
-                return { code, desc, type, uom };
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Create new material via AJAX
-                $.ajax({
-                    url: '/api/create-material', // Adjust endpoint
-                    type: 'POST',
-                    data: {
-                        material_code: result.value.code,
-                        description: result.value.desc,
-                        type: result.value.type,
-                        uom: result.value.uom,
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        // Fill the specific row with new material data
-                        let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
-                        targetRow.find('input[name*="[comp_material_code]"]').val(result.value.code);
-                        targetRow.find('input[name*="[comp_desc]"]').val(result.value.desc);
-                        targetRow.find('input[name*="[type]"]').val(result.value.type);
-                        targetRow.find('input[name*="[uom]"]').val(result.value.uom);
-                        
-                        $('#componentModal').modal('hide');
-                        Swal.fire('Berhasil', 'Material baru telah dibuat dan dipilih!', 'success');
-                    },
-                    error: function() {
-                        Swal.fire('Error', 'Gagal membuat material baru!', 'error');
-                    }
-                });
-            }
-        });
-    });
-
-    // Manual input for component material code
-    $(document).on('input', '.comp-material-search', function() {
-        let $this = $(this);
-        let code = $this.val();
-        let row = $this.closest('tr');
-        
-        if(code.length >= 3) {
-            // Search existing material
-            $.ajax({
-                url: '/api/search-material-by-code',
-                type: 'GET',
-                data: { code: code },
-                success: function(data) {
-                    if(data) {
-                        row.find('input[name*="[comp_desc]"]').val(data.description || '');
-                        row.find('input[name*="[type]"]').val(data.type || '');
-                        row.find('input[name*="[uom]"]').val(data.uom || '');
-                    } else {
-                        // Clear related fields if not found
-                        row.find('input[name*="[comp_desc]"]').val('');
-                        row.find('input[name*="[type]"]').val('');
-                        row.find('input[name*="[uom]"]').val('');
-                    }
-                }
-            });
-        }
     });
 
     // Hide dropdowns when clicking outside
