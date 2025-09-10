@@ -26,9 +26,10 @@ class TrbomjController extends Controller
         // function helper
         $data['format'] = new Format_Helper;
 
-        // Ambil data header BOM yang aktif
+        // Ambil data header BOM yang aktif dan material_fg_sfg tidak diawali '7'
         $data['table_detail_h'] = DB::table('trs_bom_h')
             ->where('isactive', '1')
+            ->whereRaw("LEFT(material_fg_sfg, 1) != '7'")
             ->orderBy('trs_bom_h_id', 'desc')
             ->get();
 
@@ -427,7 +428,8 @@ class TrbomjController extends Controller
     {
         $query = request()->get('q');
         $materials = TrsBomHModel::where('material_fg_sfg', 'LIKE', "%$query%")
-            ->select('trs_bom_h_id', 'material_fg_sfg as material_code', 'base_uom_header', 'product as description')
+            ->whereRaw("LEFT(material_fg_sfg, 1) != '7'")
+            ->select('trs_bom_h_id', 'material_fg_sfg', 'base_uom_header', 'product')
             ->limit(10)
             ->get();
 
@@ -440,7 +442,9 @@ class TrbomjController extends Controller
     private function getMaterialComponents()
     {
         $material = request()->get('material');
-        $header = TrsBomHModel::where('material_fg_sfg', $material)->first();
+        $header = TrsBomHModel::where('material_fg_sfg', $material)
+            ->whereRaw("LEFT(material_fg_sfg, 1) != '7'")
+            ->first();
         $result = [
             'product_qty' => '',
             'base_uom_header' => '',
