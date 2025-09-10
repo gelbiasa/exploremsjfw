@@ -34,11 +34,3 @@ Route::get('/today-access-summary', [AccessController::class, 'todayAccessSummar
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-Route::get('/resource-list', [TrbomjController::class, 'getAllResources']);
-Route::get('/material-search', [TrbomjController::class, 'searchMaterial']);
-Route::get('/material-components', [TrbomjController::class, 'getMaterialComponents']);
-Route::get('/component-materials', [TrbomjController::class, 'getComponentMaterials']);
-Route::post('/create-material', [TrbomjController::class, 'createComponentMaterial']);
-Route::get('/search-material-by-code', [TrbomjController::class, 'searchMaterialByCode']);
-Route::get('/component-materials', [TrbomjController::class, 'getComponentMaterials']);
