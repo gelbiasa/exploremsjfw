@@ -81,7 +81,7 @@
                         <hr class="horizontal dark mt-0">
                         <div class="row px-4 py-2">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-striped" id="list_detail">
+                                <table class="table display" id="list_detail">
                                     <thead class="thead-light" style="background-color: #00b7bd4f;">
                                         <tr>
                                             <th>No</th>
@@ -94,9 +94,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="detail_tbody">
-                                        <tr>
-                                            <td colspan="7" class="text-center">Pilih data header untuk melihat detail</td>
-                                        </tr>
+                                        {{-- Hapus default row karena akan dihandle oleh DataTables --}}
                                     </tbody>
                                 </table>
                             </div>
@@ -177,8 +175,8 @@
                         {
                             text: '<i class="fas fa-plus me-1 text-lg btn-add"> </i><span class="font-weight-bold"> Tambah',
                             action: function (e, dt, node, config) {
-                                // Tampilkan modal pilih jumlah baris
-                                $('#modalAddRows').modal('show');
+                                // Langsung redirect ke halaman add dengan default 1 baris
+                                window.location = "{{ URL::to($url_menu . '/add') }}?rows=1";
                             }
                         },
                         {
@@ -209,24 +207,24 @@
                 console.error('Error initializing header table:', error);
             }
 
-            // Initialize detail table secara sederhana tanpa DataTables dulu
-            console.log('Detail table ready for manual control');
+            // Initialize detail table dengan framework style - TAMBAHKAN BAGIAN INI
+            try {
+                initializeDetailTableEmpty();
+                console.log('Detail table initialized with framework style (empty)');
+            } catch (error) {
+                console.error('Error initializing empty detail table:', error);
+            }
 
             //set color button datatables - TAMBAHKAN BAGIAN INI
             $('.dt-button').addClass('btn btn-secondary');
             $('.dt-button').removeClass('dt-button');
 
-            //setting button add
-                var btnadd = $('.btn-add').parents('.btn');
-                btnadd.removeClass('btn-secondary');
-                btnadd.addClass('btn btn-primary');
-                btnadd.removeAttr('onclick'); // Remove default redirect
-                btnadd.on('click', function(e) {
-                    e.preventDefault();
-                    $('#modalAddRows').modal('show');
-                });
+            //setting button add - PERBAIKI BAGIAN INI
+            var btnadd = $('.btn-add').parents('.btn');
+            btnadd.removeClass('btn-secondary');
+            btnadd.addClass('btn btn-primary');
             
-            // Event handler untuk button detail
+            // Event handler for button detail
             $(document).on('click', '.btn-detail', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
@@ -245,20 +243,95 @@
             <?= $authorize->print == '0' ? "$('.buttons-print').remove();" : '' ?>
         });
 
-            // Event untuk tombol konfirmasi modal
-            $('#confirmAddRows').on('click', function() {
-                var jumlahBaris = $('#jumlahBaris').val();
-                if (jumlahBaris) {
-                    window.location = "{{ URL::to($url_menu . '/add') }}?rows=" + jumlahBaris;
-                }
-            });
+        // TAMBAHKAN FUNCTION BARU INI - Initialize empty detail table dengan framework
+        function initializeDetailTableEmpty() {
+            try {
+                // Initialize DataTable dengan framework style untuk tabel kosong
+                detailTable = $('#list_detail').DataTable({
+                    data: [], // Empty data
+                    "language": {
+                        "search": "Cari :",
+                        "lengthMenu": "Tampilkan _MENU_ baris",
+                        "zeroRecords": "Pilih data header untuk melihat detail",
+                        "info": "Data _START_ - _END_ dari _TOTAL_",
+                        "infoEmpty": "Pilih data header untuk melihat detail",
+                        "infoFiltered": "(pencarian dari _MAX_ data)",
+                        "paginate": {
+                            "first": "Pertama",
+                            "last": "Terakhir",
+                            "next": "Next",
+                            "previous": "Previous"
+                        }
+                    },
+                    "pageLength": 10,
+                    "lengthMenu": [5, 10, 25, 50],
+                    responsive: true,
+                    dom: 'lfrtip', // Layout tanpa buttons untuk detail table
+                    "order": [[ 0, "asc" ]], // Sort by No column
+                    "paging": true,
+                    "searching": true,
+                    "info": true,
+                    "lengthChange": true,
+                    "autoWidth": false,
+                    "columnDefs": [
+                        {
+                            "targets": [0], // No column
+                            "width": "5%",
+                            "className": "text-center"
+                        },
+                        {
+                            "targets": [1], // Item No column
+                            "width": "10%",
+                            "className": "text-center"
+                        },
+                        {
+                            "targets": [2], // COMP MATERIAL CODE column
+                            "width": "20%"
+                        },
+                        {
+                            "targets": [3], // COMP DESC column
+                            "width": "25%"
+                        },
+                        {
+                            "targets": [4, 5], // Product QTY dan Comp QTY columns
+                            "width": "12%",
+                            "className": "text-end"
+                        },
+                        {
+                            "targets": 6, // Action column
+                            "width": "16%",
+                            "orderable": false,
+                            "searchable": false,
+                            "className": "text-center"
+                        }
+                    ],
+                    "responsive": {
+                        "details": {
+                            "type": 'column',
+                            "target": 'tr'
+                        }
+                    }
+                });
+                
+                detailTableInitialized = true;
+                
+            } catch (error) {
+                console.error('Error initializing empty detail table:', error);
+            }
+        }
+
         // function detail ajax
         function detail(id, gmenu, dmenu, material_name) {
             console.log('Detail function called with:', {id, gmenu, dmenu, material_name});
             
             // Show loading state
             $('#label_detail').html('<i class="fas fa-spinner fa-spin"></i> Loading Detail Data...');
-            $('#detail_tbody').html('<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>');
+            
+            // Update DataTable dengan loading message - UBAH BAGIAN INI
+            if (detailTableInitialized && detailTable) {
+                detailTable.clear();
+                detailTable.row.add(['', '', '<i class="fas fa-spinner fa-spin"></i> Loading...', '', '', '', '']).draw();
+            }
             
             // Disable semua button detail untuk prevent multiple clicks
             $('.btn-detail').prop('disabled', true);
@@ -294,14 +367,19 @@
                         // set title detail
                         $('#label_detail').text('List Detail -> ' + (material_name || 'Unknown'));
                         
-                        // Build detail table manually
-                        buildDetailTable(data.table_detail_d_ajax, data.encrypt_primary || []);
+                        // Initialize detail table dengan DataTables framework - UBAH BAGIAN INI
+                        initializeDetailTable(data.table_detail_d_ajax, data.encrypt_primary || []);
                         
                     } catch (error) {
                         console.error('Error processing response:', error);
                         showErrorMessage('Error processing data: ' + error.message);
                         $('#label_detail').text('List Detail - Error');
-                        $('#detail_tbody').html('<tr><td colspan="7" class="text-center text-danger">Error loading data</td></tr>');
+                        
+                        // Update DataTable dengan error message - UBAH BAGIAN INI
+                        if (detailTableInitialized && detailTable) {
+                            detailTable.clear();
+                            detailTable.row.add(['', '', 'Error loading data', '', '', '', '']).draw();
+                        }
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -319,7 +397,12 @@
                         errorMsg = 'Server error - please try again later';
                     }
                     
-                    $('#detail_tbody').html('<tr><td colspan="7" class="text-center text-danger">' + errorMsg + '</td></tr>');
+                    // Update DataTable dengan error message - UBAH BAGIAN INI
+                    if (detailTableInitialized && detailTable) {
+                        detailTable.clear();
+                        detailTable.row.add(['', '', errorMsg, '', '', '', '']).draw();
+                    }
+                    
                     showErrorMessage(errorMsg);
                 },
                 complete: function() {
@@ -330,18 +413,18 @@
             });
         }
 
-        function buildDetailTable(detailData, encryptKeys) {
+        // GANTI FUNCTION LAMA DENGAN YANG BARU INI
+        function initializeDetailTable(detailData, encryptKeys) {
             try {
-                console.log('Building detail table manually with data:', detailData);
+                console.log('Initializing detail table with framework style:', detailData);
                 
-                // Clear tbody
-                $('#detail_tbody').empty();
+                // Clear and prepare data for DataTables
+                let tableData = [];
                 
-                // Build table content
                 if (detailData && Array.isArray(detailData) && detailData.length > 0) {
-                    console.log('Building table with', detailData.length, 'rows');
+                    console.log('Processing', detailData.length, 'rows for DataTable');
                     
-                    var rowCount = 0;
+                    let rowCount = 0;
                     for (let index = 0; index < detailData.length; index++) {
                         const item = detailData[index];
                         const encryptedId = encryptKeys[index] || '';
@@ -349,43 +432,47 @@
                         // Validate item and only show active data
                         if (item && item.isactive === '1') {
                             rowCount++;
-                            const row = $(`
-                                <tr>
-                                    <td class="text-sm font-weight-normal">${rowCount}</td>
-                                    <td class="text-sm font-weight-normal">${item.item_number || '-'}</td>
-                                    <td class="text-sm font-weight-normal">${item.comp_material_code || '-'}</td>
-                                    <td class="text-sm font-weight-normal">${item.comp_desc || '-'}</td>
-                                    <td class="text-sm font-weight-normal text-end">${item.product_qty ? parseFloat(item.product_qty).toFixed(3) : '0.000'}</td>
-                                    <td class="text-sm font-weight-normal text-end">${item.comp_qty ? parseFloat(item.comp_qty).toFixed(3) : '0.000'}</td>
-                                    <td class="text-sm font-weight-normal">
-                                        <button type="button" class="btn btn-primary mb-0 py-1 px-2"
-                                            title="View Data"
-                                            onclick="window.location='{{ url($url_menu . '/show/') }}/${encryptedId}'">
-                                            <i class="fas fa-eye"></i> View
-                                        </button>
-                                    </td>
-                                </tr>
-                            `);
-                            
-                            $('#detail_tbody').append(row);
+                            tableData.push([
+                                rowCount,
+                                item.item_number || '-',
+                                item.comp_material_code || '-',
+                                item.comp_desc || '-',
+                                item.product_qty ? parseFloat(item.product_qty).toFixed(3) : '0.000',
+                                item.comp_qty ? parseFloat(item.comp_qty).toFixed(3) : '0.000',
+                                `<button type="button" class="btn btn-primary mb-0 py-1 px-2" title="View Data" onclick="window.location='{{ url($url_menu . '/show/') }}/${encryptedId}'"><i class="fas fa-eye"></i> View</button>`
+                            ]);
                         }
                     }
-                    
-                    console.log('Successfully added', rowCount, 'active rows');
-                    
-                    if (rowCount === 0) {
-                        $('#detail_tbody').html('<tr><td colspan="7" class="text-center">Maaf - Tidak ada data detail yang aktif</td></tr>');
-                    }
-                } else {
-                    $('#detail_tbody').html('<tr><td colspan="7" class="text-center">Maaf - Data detail tidak tersedia</td></tr>');
-                    console.log('No detail data available');
                 }
                 
+                // Update existing DataTable dengan data baru - UBAH BAGIAN INI
+                if (detailTableInitialized && detailTable) {
+                    detailTable.clear();
+                    if (tableData.length > 0) {
+                        detailTable.rows.add(tableData);
+                    }
+                    detailTable.draw();
+                } else {
+                    // Initialize jika belum ada
+                    initializeDetailTableEmpty();
+                    if (tableData.length > 0) {
+                        detailTable.rows.add(tableData);
+                        detailTable.draw();
+                    }
+                }
+                
+                console.log('Detail table updated successfully with', tableData.length, 'rows');
+                
             } catch (error) {
-                console.error('Error building table:', error);
-                showErrorMessage('Error displaying data: ' + error.message);
+                console.error('Error initializing detail table:', error);
+                showErrorMessage('Error initializing detail table: ' + error.message);
                 $('#label_detail').text('List Detail - Error');
-                $('#detail_tbody').html('<tr><td colspan="7" class="text-center text-danger">Error displaying data</td></tr>');
+                
+                // Update DataTable dengan error message
+                if (detailTableInitialized && detailTable) {
+                    detailTable.clear();
+                    detailTable.row.add(['', '', 'Error initializing table', '', '', '', '']).draw();
+                }
             }
         }
 
@@ -423,32 +510,3 @@
         }
     </script>
 @endpush
-<!-- Modal Pilih Jumlah Baris -->
-<div class="modal fade" id="modalAddRows" tabindex="-1" aria-labelledby="modalAddRowsLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalAddRowsLabel">Pilih Jumlah Baris</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="jumlahBaris" class="form-label">Berapa baris yang ingin ditambahkan?</label>
-                    <input type="number" min="1" max="100" class="form-control" id="jumlahBaris" list="presetRows" value="1" placeholder="Masukkan jumlah baris...">
-                    <datalist id="presetRows">
-                        <option value="1">
-                        <option value="2">
-                        <option value="3">
-                        <option value="5">
-                        <option value="10">
-                    </datalist>
-                    <small class="form-text text-muted">Anda bisa memilih atau mengetik jumlah baris sendiri.</small>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="confirmAddRows">Tambah</button>
-            </div>
-        </div>
-    </div>
-</div>

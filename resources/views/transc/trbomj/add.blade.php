@@ -17,11 +17,45 @@
                                 onclick="validateAndSubmit()"><i
                                     class="fas fa-floppy-disk me-1"> </i><span class="font-weight-bold">Simpan</button>
                         @endif
+                        {{-- button pilih jumlah page --}}
+                        <button class="btn btn-success mb-0" data-bs-toggle="modal" data-bs-target="#modalAddRows">
+                            <i class="fas fa-plus me-1"></i><span class="font-weight-bold">Pilih Jumlah Halaman</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal Pilih Jumlah Baris -->
+    <div class="modal fade" id="modalAddRows" tabindex="-1" aria-labelledby="modalAddRowsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAddRowsLabel">Pilih Jumlah Baris</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="jumlahBaris" class="form-label">Berapa baris yang ingin ditambahkan?</label>
+                        <input type="number" min="1" max="100" class="form-control" id="jumlahBaris" list="presetRows" value="{{ request()->get('rows', 1) }}" placeholder="Masukkan jumlah baris...">
+                        <datalist id="presetRows">
+                            <option value="1">
+                            <option value="2">
+                            <option value="3">
+                            <option value="5">
+                            <option value="10">
+                        </datalist>
+                        <small class="form-text text-muted">Anda bisa memilih atau mengetik jumlah baris sendiri.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="confirmAddRows">Tambah</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container-fluid py-4">
         <form role="form" method="POST" action="{{ URL::to($url_menu) }}" id="{{ $dmenu }}-form" enctype="multipart/form-data">
             @csrf
@@ -64,11 +98,11 @@
                                 {{-- Auto-filled fields from Resource --}}
                                 <div class="col-md-6 mb-3">
                                     <label class="form-control-label">Mat Type</label>
-                                    <input type="text" class="form-control mat-type" name="bom_data[{{ $i }}][mat_type]" id="mat_type-{{ $i }}">
+                                    <input type="text" class="form-control mat-type" name="bom_data[{{ $i }}][mat_type]" id="mat_type-{{ $i }}" readonly>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label class="form-control-label">Width</label>
-                                    <input type="text" class="form-control width" name="bom_data[{{ $i }}][width]" id="width-{{ $i }}">
+                                    <input type="text" class="form-control width" name="bom_data[{{ $i }}][width]" id="width-{{ $i }}" readonly>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label class="form-control-label">Length</label>
@@ -95,8 +129,8 @@
                             
                             {{-- Detail Transaction Table --}}
                             <div class="table-responsive">
-                                <table id="datatable-bom-{{ $i }}" class="table table-bordered table-striped bom-table" data-index="{{ $i }}">
-                                    <thead class="bg-light">
+                                <table id="datatable-bom-{{ $i }}" class="table display bom-table" data-index="{{ $i }}">
+                                    <thead class="thead-light" style="background-color: #00b7bd4f;">
                                         <tr>
                                             <th>No</th>
                                             <th>Material FG/SFG</th>
@@ -296,17 +330,80 @@ $(document).ready(function() {
         responsive: true
     });
 
-    // Inisialisasi DataTable untuk setiap card
+    // Initialize DataTable untuk setiap card dengan framework style - UBAH BAGIAN INI
     $('.bom-table').each(function() {
         $(this).DataTable({
-            paging: false,
-            searching: false,
-            info: false,
-            ordering: false,
-            columnDefs: [
-                { targets: [0], width: "5%" },
-                { targets: [11], width: "8%" }
-            ]
+            "language": {
+                "lengthMenu": "Tampilkan _MENU_ baris",
+                "zeroRecords": "Belum ada data - klik tombol 'Tambah Baris Data' untuk menambah data",
+                "info": "Data _START_ - _END_ dari _TOTAL_",
+                "infoEmpty": "Belum ada data",
+                "infoFiltered": "(pencarian dari _MAX_ data)",
+                "paginate": {
+                    "first": "Pertama",
+                    "last": "Terakhir",
+                    "next": "Next",
+                    "previous": "Previous"
+                }
+            },
+            "pageLength": 10,
+            "lengthMenu": [5, 10, 25, 50],
+            responsive: true,
+            dom: 'lrtip', // Layout framework tanpa buttons dan search (hilangkan 'f')
+            "order": [[ 0, "asc" ]], // Sort by No column
+            "paging": true,
+            "searching": false, // Disable search functionality
+            "info": true,
+            "lengthChange": true,
+            "autoWidth": false,
+            "columnDefs": [
+                {
+                    "targets": [0], // No column
+                    "width": "5%",
+                    "className": "text-center"
+                },
+                {
+                    "targets": [1, 2], // Material FG/SFG, Alt BOM Text
+                    "width": "15%"
+                },
+                {
+                    "targets": [3, 4, 5], // Product QTY, Base UOM, Item Number
+                    "width": "8%",
+                    "className": "text-center"
+                },
+                {
+                    "targets": [6], // Type
+                    "width": "5%",
+                    "className": "text-center"
+                },
+                {
+                    "targets": [7, 8], // Comp Material Code, Comp Desc
+                    "width": "15%"
+                },
+                {
+                    "targets": [9], // Comp QTY
+                    "width": "8%",
+                    "className": "text-end"
+                },
+                {
+                    "targets": [10], // UOM
+                    "width": "8%",
+                    "className": "text-center"
+                },
+                {
+                    "targets": [11], // Action
+                    "width": "8%",
+                    "orderable": false,
+                    "searchable": false,
+                    "className": "text-center"
+                }
+            ],
+            "responsive": {
+                "details": {
+                    "type": 'column',
+                    "target": 'tr'
+                }
+            }
         });
     });
 
@@ -443,6 +540,99 @@ $(document).ready(function() {
         loadMaterialComponents(material, index);
     });
 
+    // ========== TABLE ROW MANAGEMENT - UBAH FUNCTION INI ==========
+    function addTableRow(tableIndex, rowNumber, data = {}) {
+        let itemNumber = (rowNumber * 10).toString().padStart(4, '0');
+        let productQty = data.product_qty || '';
+        let baseUomHeader = data.base_uom_header || '';
+
+        // Create row data untuk DataTables - UBAH BAGIAN INI
+        let rowData = [
+            rowNumber, // No
+            `<input type="text" class="form-control form-control-sm fg-input" name="bom_data[${tableIndex}][detail][${rowNumber}][material_fg_sfg]" value="${data.material_fg_sfg || ''}" readonly />`, // Material FG/SFG
+            `<input type="text" class="form-control form-control-sm alt-bom-row" name="bom_data[${tableIndex}][detail][${rowNumber}][alt_bom_text]" value="${data.alt_bom_text || ''}" readonly />`, // Alternative BOM Text
+            `<input type="number" class="form-control form-control-sm" name="bom_data[${tableIndex}][detail][${rowNumber}][product_qty]" value="${productQty}" readonly />`, // Product QTY
+            `<input type="text" class="form-control form-control-sm" name="bom_data[${tableIndex}][detail][${rowNumber}][base_uom_header]" value="${baseUomHeader}" readonly />`, // Base UOM Header
+            `<input type="text" class="form-control form-control-sm" name="bom_data[${tableIndex}][detail][${rowNumber}][item_number]" value="${itemNumber}" readonly />`, // Item Number
+            `<input type="text" class="form-control form-control-sm" name="bom_data[${tableIndex}][detail][${rowNumber}][type]" value="${typeof data.type !== 'undefined' && data.type !== '' ? data.type : 'L'}" readonly />`, // Type
+            `<div class="input-group input-group-sm">
+                <input type="text" class="form-control comp-material-search" name="bom_data[${tableIndex}][detail][${rowNumber}][comp_material_code]" value="${data.comp_material_code || ''}" placeholder="Pilih Component..." readonly />
+                <span class="input-group-text bg-primary text-light" style="cursor: pointer;" onclick="openComponentModal(${tableIndex}, ${rowNumber})">
+                    <i class="fas fa-search"></i>
+                </span>
+            </div>`, // Comp Material Code
+            `<input type="text" class="form-control form-control-sm comp-desc" name="bom_data[${tableIndex}][detail][${rowNumber}][comp_desc]" value="${data.comp_desc || ''}" readonly />`, // Comp Desc
+            `<input type="number" class="form-control form-control-sm" name="bom_data[${tableIndex}][detail][${rowNumber}][comp_qty]" value="${data.comp_qty || ''}" />`, // Comp QTY
+            `<input type="text" class="form-control form-control-sm uom" name="bom_data[${tableIndex}][detail][${rowNumber}][uom]" value="${data.uom || ''}" readonly />`, // UOM
+            `<button type="button" class="btn btn-sm btn-danger btn-delete-row"><i class="fas fa-trash"></i></button>` // Action
+        ];
+
+        let table = $(`#datatable-bom-${tableIndex}`).DataTable();
+        table.row.add(rowData).draw();
+    }
+
+    // Add new row button - UBAH FUNCTION INI
+    $(document).on('click', '.btn-add-row', function() {
+        let index = $(this).data('index');
+        let table = $(`#datatable-bom-${index}`).DataTable();
+        let newRowNumber = table.rows().count() + 1;
+        
+        // Get data from last row if exists
+        let lastRowData = {};
+        if (table.rows().count() > 0) {
+            let lastRowNode = table.row(':last').node();
+            if (lastRowNode) {
+                $(lastRowNode).find('input').each(function() {
+                    let name = $(this).attr('name');
+                    let value = $(this).val();
+                    if (name) {
+                        let key = name.split('[').pop().split(']')[0];
+                        lastRowData[key] = value;
+                    }
+                });
+            }
+        }
+        
+        addTableRow(index, newRowNumber, lastRowData);
+    });
+
+    // Delete row - UBAH FUNCTION INI
+    $(document).on('click', '.btn-delete-row', function() {
+        let row = $(this).closest('tr');
+        let table = row.closest('table').DataTable();
+        
+        // Remove row
+        table.row(row).remove().draw();
+        
+        // Renumber rows
+        table.rows().every(function(rowIdx) {
+            let rowNode = this.node();
+            let newRowNumber = rowIdx + 1;
+            
+            // Update row number di kolom pertama
+            $(rowNode).find('td:first').text(newRowNumber);
+            
+            // Update semua input name dengan row number baru
+            $(rowNode).find('input').each(function() {
+                let oldName = $(this).attr('name');
+                if (oldName) {
+                    let newName = oldName.replace(/\[detail\]\[\d+\]/, `[detail][${newRowNumber}]`);
+                    $(this).attr('name', newName);
+                }
+            });
+            
+            // Update onclick handler untuk component modal
+            $(rowNode).find('.input-group-text[onclick]').each(function() {
+                let oldOnclick = $(this).attr('onclick');
+                if (oldOnclick) {
+                    let tableIndex = oldOnclick.match(/openComponentModal\((\d+),/)[1];
+                    $(this).attr('onclick', `openComponentModal(${tableIndex}, ${newRowNumber})`);
+                }
+            });
+        });
+    });
+
+    // Load material components - UBAH FUNCTION INI
     function loadMaterialComponents(material, index) {
         $.ajax({
             url: "{{ url($url_menu . '/add') }}",
@@ -470,7 +660,7 @@ $(document).ready(function() {
                             comp_desc: comp.comp_desc || '',
                             comp_qty: comp.comp_qty || '',
                             uom: comp.uom || '',
-                            type: comp.type || ''
+                            type: comp.type || 'L'
                         });
                     });
                 } else {
@@ -478,7 +668,8 @@ $(document).ready(function() {
                     addTableRow(index, 1, {
                         material_fg_sfg: material,
                         product_qty: data.product_qty || '',
-                        base_uom_header: data.base_uom_header || ''
+                        base_uom_header: data.base_uom_header || '',
+                        type: 'L'
                     });
                 }
                 
@@ -490,7 +681,7 @@ $(document).ready(function() {
         });
     }
 
-    // ========== ALTERNATIVE BOM TEXT ==========
+    // Alternative BOM Text apply - UBAH FUNCTION INI
     $(document).on('click', '.alt-bom-apply-btn', function() {
         let index = $(this).data('index');
         let customText = $(`#alt_bom_text-${index}`).val();
@@ -503,158 +694,15 @@ $(document).ready(function() {
         
         let altBomText = machineCode + customText;
         
-        // Apply to all rows in the table
-        $(`#datatable-bom-${index} tbody tr`).each(function() {
-            $(this).find('.alt-bom-row').val(altBomText);
-        });
-    });
-
-    // ========== TABLE ROW MANAGEMENT ==========
-    function addTableRow(tableIndex, rowNumber, data = {}) {
-        let itemNumber = (rowNumber * 10).toString().padStart(4, '0');
-        let productQty = data.product_qty || '';
-        let baseUomHeader = data.base_uom_header || '';
-
-        let rowHtml = `<tr>
-            <td>${rowNumber}</td>
-            <td><input type="text" class="form-control fg-input" name="bom_data[${tableIndex}][detail][${rowNumber}][material_fg_sfg]" value="${data.material_fg_sfg || ''}" readonly /></td>
-            <td><input type="text" class="form-control alt-bom-row" name="bom_data[${tableIndex}][detail][${rowNumber}][alt_bom_text]" value="${data.alt_bom_text || ''}" readonly /></td>
-            <td><input type="number" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][product_qty]" value="${productQty}" readonly /></td>
-            <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][base_uom_header]" value="${baseUomHeader}" readonly /></td>
-            <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][item_number]" value="${itemNumber}" readonly /></td>
-            <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][type]" value="${typeof data.type !== 'undefined' && data.type !== '' ? data.type : 'L'}" readonly /></td>
-            <td><div class="input-group">
-                <input type="text" class="form-control comp-material-search" name="bom_data[${tableIndex}][detail][${rowNumber}][comp_material_code]" value="${data.comp_material_code || ''}" placeholder="Pilih Component..." readonly />
-                <span class="input-group-text bg-primary text-light" style="cursor: pointer;" onclick="openComponentModal(${tableIndex}, ${rowNumber})">
-                    <i class="fas fa-search"></i>
-                </span>
-            </div></td>
-            <td><input type="text" class="form-control comp-desc" name="bom_data[${tableIndex}][detail][${rowNumber}][comp_desc]" value="${data.comp_desc || ''}" readonly /></td>
-            <td><input type="number" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][comp_qty]" value="${data.comp_qty || ''}" /></td>
-            <td><input type="text" class="form-control uom" name="bom_data[${tableIndex}][detail][${rowNumber}][uom]" value="${data.uom || ''}" readonly /></td>
-            <td><button type="button" class="btn btn-sm btn-danger btn-delete-row"><i class="fas fa-trash"></i></button></td>
-        </tr>`;
-
-        let table = $(`#datatable-bom-${tableIndex}`).DataTable();
-        table.row.add($(rowHtml));
-    }
-
-    // Add new row button
-    $(document).on('click', '.btn-add-row', function() {
-        let index = $(this).data('index');
+        // Apply to all rows in the DataTable
         let table = $(`#datatable-bom-${index}`).DataTable();
-        let lastRow = table.row(':last').node();
-        let newRowNumber = table.rows().count() + 1;
-        
-        if(lastRow) {
-            // Copy ALL input values from last row
-            let lastRowData = {};
-            $(lastRow).find('input').each(function() {
-                let name = $(this).attr('name');
-                let value = $(this).val();
-                // Ambil key field terakhir dari name
-                let key = name.split('[').pop().split(']')[0];
-                lastRowData[key] = value;
-            });
-            addTableRow(index, newRowNumber, lastRowData);
-            table.draw();
-        } else {
-            addTableRow(index, 1);
-            table.draw();
-        }
-    });
-
-    // Delete row
-    $(document).on('click', '.btn-delete-row', function() {
-        let row = $(this).closest('tr');
-        let table = row.closest('table').DataTable();
-        table.row(row).remove().draw();
-        
-        // Renumber rows
-        table.rows().every(function(rowIdx) {
-            let row = this.node();
-            $(row).find('td:first').text(rowIdx + 1);
+        table.rows().every(function() {
+            let rowNode = this.node();
+            $(rowNode).find('.alt-bom-row').val(altBomText);
         });
     });
 
-    // Create new material functionality
-    $(document).on('click', '#create-new-material', function() {
-        Swal.fire({
-            title: 'Buat Material Baru',
-            html: `
-                <div class="text-start">
-                    <div class="mb-3">
-                        <label class="form-label">Kode Material:</label>
-                        <input type="text" id="new-material-code" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Deskripsi:</label>
-                        <input type="text" id="new-material-desc" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">UOM:</label>
-                        <input type="text" id="new-material-uom" class="form-control">
-                    </div>
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Simpan',
-            cancelButtonText: 'Batal',
-            preConfirm: () => {
-                let code = $('#new-material-code').val();
-                let desc = $('#new-material-desc').val();
-                let uom = $('#new-material-uom').val();
-                
-                if(!code) {
-                    Swal.showValidationMessage('Kode material harus diisi!');
-                    return false;
-                }
-                
-                return { code, desc, uom };
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Create new material via AJAX
-                $.ajax({
-                    url: "{{ url($url_menu . '/add') }}",
-                    type: 'POST',
-                    data: {
-                        action: 'create_material',
-                        material_code: result.value.code,
-                        description: result.value.desc,
-                        uom: result.value.uom,
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    },
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    success: function(response) {
-                        // Fill the specific row with new material data
-                        let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
-                        targetRow.find('input[name*="[comp_material_code]"]').val(result.value.code);
-                        targetRow.find('input[name*="[comp_desc]"]').val(result.value.desc);
-                        targetRow.find('input[name*="[type]"]').val('L');
-                        targetRow.find('input[name*="[uom]"]').val(result.value.uom);
-                        
-                        $('#componentModal').modal('hide');
-                        Swal.fire('Berhasil', 'Material baru telah dibuat dan dipilih!', 'success');
-                    },
-                    error: function() {
-                        Swal.fire('Error', 'Gagal membuat material baru!', 'error');
-                    }
-                });
-            }
-        });
-    });
-
-    // Hide dropdowns when clicking outside
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('.material-search, .material-dropdown').length) {
-            $('.material-dropdown').hide();
-        }
-    });
-
-    // Function validate and submit - sama seperti trordr
+    // ========== VALIDATION AND SUBMIT ==========
     function validateAndSubmit() {
         let isValid = true;
         let errorMessages = [];
@@ -718,6 +766,17 @@ $(document).ready(function() {
             document.getElementById('{{ $dmenu }}-form').submit();
         }
     }
+
+    // Event untuk tombol konfirmasi modal - TAMBAHKAN INI
+    $('#confirmAddRows').on('click', function() {
+        var jumlahBaris = $('#jumlahBaris').val();
+        if (jumlahBaris && jumlahBaris > 0) {
+            // Redirect ke halaman add dengan parameter rows
+            window.location = "{{ URL::to($url_menu . '/add') }}?rows=" + jumlahBaris;
+        } else {
+            Swal.fire('Warning', 'Masukkan jumlah baris yang valid!', 'warning');
+        }
+    });
 
     // Expose functions to global scope
     window.openResourceModal = openResourceModal;
