@@ -14,7 +14,7 @@
                         @if ($authorize->add == '1')
                             {{-- button save --}}
                             <button class="btn btn-primary mb-0"
-                                onclick="event.preventDefault(); document.getElementById('{{ $dmenu }}-form').submit();"><i
+                                onclick="validateAndSubmit()"><i
                                     class="fas fa-floppy-disk me-1"> </i><span class="font-weight-bold">Simpan</button>
                         @endif
                     </div>
@@ -40,8 +40,9 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-control-label">Resources <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control resource-input" name="bom_data[{{ $i }}][resources]" id="resource-{{ $i }}" readonly placeholder="Pilih Resource...">
-                                        <span class="input-group-text bg-primary text-light resource-search-btn" style="cursor: pointer;" data-index="{{ $i }}">
+                                        <input type="hidden" name="bom_data[{{ $i }}][resources]" id="resources-{{ $i }}" required>
+                                        <input type="text" class="form-control" id="resource_display_{{ $i }}" placeholder="Pilih Resource..." readonly>
+                                        <span class="input-group-text bg-primary text-light" onclick="openResourceModal({{ $i }})" style="cursor: pointer;">
                                             <i class="fas fa-search"></i>
                                         </span>
                                     </div>
@@ -52,7 +53,7 @@
                                     <label class="form-control-label">Material FG/SFG <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <input type="text" class="form-control material-search" name="bom_data[{{ $i }}][material]" id="material-{{ $i }}" autocomplete="off" placeholder="Cari Material...">
-                                        <span class="input-group-text bg-success text-light material-apply-btn" style="cursor: pointer;" data-index="{{ $i }}">
+                                        <span class="input-group-text bg-primary text-light material-apply-btn" style="cursor: pointer;" data-index="{{ $i }}">
                                             <i class="fas fa-check"></i>
                                         </span>
                                     </div>
@@ -84,7 +85,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text machine-code" id="machine-code-{{ $i }}"></span>
                                         <input type="text" class="form-control alt-bom-input" name="bom_data[{{ $i }}][alt_bom_text]" id="alt_bom_text-{{ $i }}" placeholder="Input Custom...">
-                                        <span class="input-group-text bg-success text-light alt-bom-apply-btn" style="cursor: pointer;" data-index="{{ $i }}">
+                                        <span class="input-group-text bg-primary text-light alt-bom-apply-btn" style="cursor: pointer;" data-index="{{ $i }}">
                                             <i class="fas fa-check"></i>
                                         </span>
                                     </div>
@@ -134,32 +135,43 @@
         </form>
     </div>
 
-    {{-- Modal Resource Selection --}}
-    <div class="modal fade" id="resourceModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+    {{-- Modal Resource Selection - Framework Style seperti trordr --}}
+    <div class="modal fade" id="resourceModal" tabindex="-1" role="dialog" aria-labelledby="resourceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Pilih Resource</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" id="resourceModalLabel">Pilih Resource</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <input type="text" id="resource_keyword" class="form-control" placeholder="Ketik nama resource untuk pencarian...">
-                    </div>
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead class="bg-light">
+                        <table class="table display" id="resourceTable">
+                            <thead style="background-color: #b0e9eb;">
                                 <tr>
+                                    <th width="80px">Action</th>
                                     <th>Resource</th>
                                     <th>Mat Type</th>
                                     <th>Width</th>
                                     <th>Length</th>
                                     <th>Capacity</th>
-                                    <th>Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="resource_table">
-                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                            <tbody>
+                                @foreach($resources as $resource)
+                                <tr>
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                onclick="selectResource('{{ $resource->resource }}', '{{ $resource->mat_type }}', '{{ $resource->width }}', '{{ $resource->length }}', '{{ $resource->capacity }}')">
+                                            <i class="fas fa-check"></i> Select
+                                        </button>
+                                    </td>
+                                    <td>{{ $resource->resource }}</td>
+                                    <td>{{ $resource->mat_type }}</td>
+                                    <td>{{ $resource->width }}</td>
+                                    <td>{{ $resource->length }}</td>
+                                    <td>{{ $resource->capacity }}</td>
+                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -168,35 +180,44 @@
         </div>
     </div>
 
-    {{-- Modal Component Material Selection --}}
-    <div class="modal fade" id="componentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+    {{-- Modal Component Material Selection - Framework Style seperti trordr --}}
+    <div class="modal fade" id="componentModal" tabindex="-1" role="dialog" aria-labelledby="componentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Pilih Component Material</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" id="componentModalLabel">Pilih Component Material</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <input type="text" id="component_keyword" class="form-control" placeholder="Ketik kode material untuk pencarian...">
-                    </div>
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead class="bg-light">
+                        <table class="table display" id="componentTable">
+                            <thead style="background-color: #b0e9eb;">
                                 <tr>
+                                    <th width="80px">Action</th>
                                     <th>Material Code</th>
                                     <th>Description</th>
                                     <th>UOM</th>
-                                    <th>Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="component_table">
-                                <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                            <tbody>
+                                @foreach($components as $component)
+                                <tr>
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                onclick="selectComponent('{{ $component->material_code }}', '{{ $component->description }}', '{{ $component->uom }}')">
+                                            <i class="fas fa-check"></i> Select
+                                        </button>
+                                    </td>
+                                    <td>{{ $component->material_code }}</td>
+                                    <td>{{ $component->description }}</td>
+                                    <td>{{ $component->uom }}</td>
+                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
                     <div class="mt-3">
-                        <button type="button" class="btn btn-success" id="create-new-material">
+                        <button type="button" class="btn btn-primary" id="create-new-material">
                             <i class="fas fa-plus"></i> Buat Material Baru
                         </button>
                     </div>
@@ -232,9 +253,48 @@
 $(document).ready(function() {
     let currentTargetIndex = 0;
     let currentRowIndex = 0;
-    let allResources = [];
-    let allMaterials = [];
-    let allComponents = [];
+
+    // Initialize DataTables untuk modal resource - sama seperti trordr
+    $('#resourceTable').DataTable({
+        "language": {
+            "search": "Search:",
+            "lengthMenu": "Show _MENU_ entries",
+            "zeroRecords": "Maaf - Data tidak ada",
+            "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+            "infoEmpty": "Showing 0 to 0 of 0 entries",
+            "infoFiltered": "(filtered from _MAX_ total entries)",
+            "paginate": {
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "previous": "Previous"
+            }
+        },
+        "pageLength": 10,
+        "lengthMenu": [[10, 25, 50, 100], [10, 25, 50, 100]],
+        responsive: true
+    });
+
+    // Initialize DataTables untuk modal component - sama seperti trordr
+    $('#componentTable').DataTable({
+        "language": {
+            "search": "Search:",
+            "lengthMenu": "Show _MENU_ entries",
+            "zeroRecords": "Maaf - Data tidak ada",
+            "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+            "infoEmpty": "Showing 0 to 0 of 0 entries",
+            "infoFiltered": "(filtered from _MAX_ total entries)",
+            "paginate": {
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "previous": "Previous"
+            }
+        },
+        "pageLength": 10,
+        "lengthMenu": [[10, 25, 50, 100], [10, 25, 50, 100]],
+        responsive: true
+    });
 
     // Inisialisasi DataTable untuk setiap card
     $('.bom-table').each(function() {
@@ -250,86 +310,27 @@ $(document).ready(function() {
         });
     });
 
-    // ========== RESOURCE SELECTION ==========
-    // Open Resource Modal
-    $(document).on('click', '.resource-search-btn', function() {
-        currentTargetIndex = $(this).data('index');
+    // ========== RESOURCE SELECTION - Framework Style ==========
+    // Variable global untuk menyimpan index resource yang sedang dipilih
+    let currentResourceIndex = 0;
+
+    // Function open resource modal
+    function openResourceModal(index) {
+        currentResourceIndex = index;
         $('#resourceModal').modal('show');
-        loadResourceData();
-        $('#resource_keyword').val('');
-    });
-
-    // Load Resource Data from trs_bom_h
-    function loadResourceData() {
-        $.ajax({
-            url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
-            type: 'GET',
-            dataType: 'json',
-            data: {
-                action: 'get_resources'
-            },
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            success: function(data) {
-                allResources = data;
-                renderResourceTable(data);
-            },
-            error: function() {
-                $('#resource_table').html('<tr><td colspan="6" class="text-center text-danger">Gagal mengambil data resource</td></tr>');
-            }
-        });
     }
 
-    // Resource search in modal
-    $(document).on('input', '#resource_keyword', function() {
-        let keyword = $(this).val().toLowerCase();
-        let filtered = allResources.filter(function(res) {
-            return (res.resource || '').toLowerCase().includes(keyword) ||
-                   (res.mat_type || '').toLowerCase().includes(keyword);
-        });
-        renderResourceTable(filtered);
-    });
-
-    // Render Resource Table
-    function renderResourceTable(data) {
-        let tbody = '';
-        if(data.length === 0) {
-            tbody = '<tr><td colspan="6" class="text-center">Data tidak ditemukan</td></tr>';
-        } else {
-            data.forEach(function(res) {
-                tbody += `<tr>
-                    <td>${res.resource || ''}</td>
-                    <td>${res.mat_type || ''}</td>
-                    <td>${res.width || ''}</td>
-                    <td>${res.length || ''}</td>
-                    <td>${res.capacity || ''}</td>
-                    <td><button type="button" class="btn btn-success btn-sm btn-select-resource" 
-                        data-resource="${res.resource || ''}" 
-                        data-mat_type="${res.mat_type || ''}" 
-                        data-width="${res.width || ''}" 
-                        data-length="${res.length || ''}" 
-                        data-capacity="${res.capacity || ''}">Pilih</button></td>
-                </tr>`;
-            });
-        }
-        $('#resource_table').html(tbody);
-    }
-
-    // Select Resource and auto-fill related fields
-    $(document).on('click', '.btn-select-resource', function() {
-        let resource = $(this).data('resource');
-        let mat_type = $(this).data('mat_type');
-        let width = $(this).data('width');
-        let length = $(this).data('length');
-        let capacity = $(this).data('capacity');
+    // Function select resource - sama seperti trordr
+    function selectResource(resource, mat_type, width, length, capacity) {
+        const index = currentResourceIndex;
         
         // Fill resource form fields
-        $(`#resource-${currentTargetIndex}`).val(resource);
-        $(`#mat_type-${currentTargetIndex}`).val(mat_type);
-        $(`#width-${currentTargetIndex}`).val(width);
-        $(`#length-${currentTargetIndex}`).val(length);
-        $(`#capacity-${currentTargetIndex}`).val(capacity);
+        $(`#resources-${index}`).val(resource);
+        $(`#resource_display_${index}`).val(resource); // Hanya tampilkan resource saja
+        $(`#mat_type-${index}`).val(mat_type);
+        $(`#width-${index}`).val(width);
+        $(`#length-${index}`).val(length);
+        $(`#capacity-${index}`).val(capacity);
         
         // Generate machine code (last 2 digits of resource code)
         let machineCode = '';
@@ -337,10 +338,33 @@ $(document).ready(function() {
             let resourceCode = resource.toString();
             machineCode = resourceCode.slice(-2) + '-';
         }
-        $(`#machine-code-${currentTargetIndex}`).text(machineCode);
+        $(`#machine-code-${index}`).text(machineCode);
         
         $('#resourceModal').modal('hide');
-    });
+    }
+
+    // ========== COMPONENT MATERIAL SELECTION - Framework Style ==========
+    // Variable global untuk menyimpan index component yang sedang dipilih
+    let currentComponentIndex = 0;
+
+    // Function open component modal
+    function openComponentModal(tableIndex, rowIndex) {
+        currentTargetIndex = tableIndex;
+        currentRowIndex = rowIndex;
+        $('#componentModal').modal('show');
+    }
+
+    // Function select component - sama seperti trordr
+    function selectComponent(code, desc, uom) {
+        // Fill the specific row
+        let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
+        targetRow.find('input[name*="[comp_material_code]"]').val(code);
+        targetRow.find('input[name*="[comp_desc]"]').val(desc);
+        targetRow.find('input[name*="[type]"]').val('L'); // Default type
+        targetRow.find('input[name*="[uom]"]').val(uom);
+
+        $('#componentModal').modal('hide');
+    }
 
     // ========== MATERIAL FG/SFG SELECTION ==========
     // Material search with dropdown
@@ -358,7 +382,7 @@ $(document).ready(function() {
 
     function searchMaterials(keyword, index) {
         $.ajax({
-            url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
+            url: "{{ url($url_menu . '/add') }}",
             type: 'GET',
             data: { 
                 action: 'search_material',
@@ -385,9 +409,9 @@ $(document).ready(function() {
             data.forEach(function(material) {
                 html += `<a class="dropdown-item material-option" href="#" 
                     data-index="${index}"
-                    data-material="${material.material_code}"
-                    data-desc="${material.description}"
-                    data-base_uom="${material.base_uom}">${material.material_code} - ${material.description}</a>`;
+                    data-material="${material.material_fg_sfg}"
+                    data-desc="${material.product}"
+                    data-base_uom="${material.base_uom_header}">${material.material_fg_sfg} - ${material.product}</a>`;
             });
             dropdown.html(html).show();
         } else {
@@ -421,7 +445,7 @@ $(document).ready(function() {
 
     function loadMaterialComponents(material, index) {
         $.ajax({
-            url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
+            url: "{{ url($url_menu . '/add') }}",
             type: 'GET',
             data: { 
                 action: 'get_material_components',
@@ -466,200 +490,6 @@ $(document).ready(function() {
         });
     }
 
-    // ========== COMPONENT MATERIAL SELECTION ==========
-    $(document).on('click', '.comp-search-btn', function() {
-        currentTargetIndex = $(this).data('table-index');
-        currentRowIndex = $(this).data('row-index');
-        $('#componentModal').modal('show');
-        loadComponentData();
-        $('#component_keyword').val('');
-    });
-
-    function loadComponentData() {
-        $.ajax({
-            url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
-            type: 'GET',
-            data: { action: 'get_component_materials' },
-            dataType: 'json',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            success: function(data) {
-                allComponents = data;
-                renderComponentTable(data);
-            },
-            error: function() {
-                $('#component_table').html('<tr><td colspan="5" class="text-center text-danger">Gagal mengambil data komponen</td></tr>');
-            }
-        });
-    }
-
-    // Component search in modal
-    $(document).on('input', '#component_keyword', function() {
-        let keyword = $(this).val().toLowerCase();
-        let filtered = allComponents.filter(function(comp) {
-            return (comp.material_code || '').toLowerCase().includes(keyword) ||
-                   (comp.description || '').toLowerCase().includes(keyword);
-        });
-        renderComponentTable(filtered);
-    });
-
-    function renderComponentTable(data) {
-        let tbody = '';
-        if(data.length === 0) {
-            tbody = '<tr><td colspan="5" class="text-center">Data tidak ditemukan</td></tr>';
-        } else {
-            data.forEach(function(comp) {
-                tbody += `<tr>
-                    <td>${comp.material_code || ''}</td>
-                    <td>${comp.description || ''}</td>
-                    <td>${comp.uom || ''}</td>
-                    <td><button type="button" class="btn btn-success btn-sm btn-select-component" 
-                        data-code="${comp.material_code || ''}" 
-                        data-desc="${comp.description || ''}" 
-                        data-uom="${comp.uom || ''}">Pilih</button></td>
-                </tr>`;
-            });
-        }
-        $('#component_table').html(tbody);
-    }
-
-    // Select component material
-    $(document).on('click', '.btn-select-component', function() {
-        let code = $(this).data('code');
-        let desc = $(this).data('desc');
-        let type = $(this).data('type');
-        let uom = $(this).data('uom');
-
-        // Set type default 'L' jika kosong
-        let typeValue = (typeof type !== 'undefined' && type !== '') ? type : 'L';
-
-        // Fill the specific row
-        let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
-        targetRow.find('input[name*="[comp_material_code]"]').val(code);
-        targetRow.find('input[name*="[comp_desc]"]').val(desc);
-        targetRow.find('input[name*="[type]"]').val(typeValue);
-        targetRow.find('input[name*="[uom]"]').val(uom);
-
-        $('#componentModal').modal('hide');
-    });
-
-    // Create new material functionality
-    $(document).on('click', '#create-new-material', function() {
-        let keyword = $('#component_keyword').val();
-        if(!keyword) {
-            Swal.fire('Warning', 'Masukkan kode material terlebih dahulu!', 'warning');
-            return;
-        }
-        
-        Swal.fire({
-            title: 'Buat Material Baru',
-            html: `
-                <div class="text-start">
-                    <div class="mb-3">
-                        <label class="form-label">Kode Material:</label>
-                        <input type="text" id="new-material-code" class="form-control" value="${keyword}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Deskripsi:</label>
-                        <input type="text" id="new-material-desc" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Type:</label>
-                        <input type="text" id="new-material-type" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">UOM:</label>
-                        <input type="text" id="new-material-uom" class="form-control">
-                    </div>
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Simpan',
-            cancelButtonText: 'Batal',
-            preConfirm: () => {
-                let code = $('#new-material-code').val();
-                let desc = $('#new-material-desc').val();
-                let type = $('#new-material-type').val();
-                let uom = $('#new-material-uom').val();
-                
-                if(!code) {
-                    Swal.showValidationMessage('Kode material harus diisi!');
-                    return false;
-                }
-                
-                return { code, desc, type, uom };
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Create new material via AJAX
-                $.ajax({
-                    url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
-                    type: 'POST',
-                    data: {
-                        action: 'create_material',
-                        material_code: result.value.code,
-                        description: result.value.desc,
-                        type: result.value.type,
-                        uom: result.value.uom,
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    },
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    success: function(response) {
-                        // Fill the specific row with new material data
-                        let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
-                        targetRow.find('input[name*="[comp_material_code]"]').val(result.value.code);
-                        targetRow.find('input[name*="[comp_desc]"]').val(result.value.desc);
-                        targetRow.find('input[name*="[type]"]').val(result.value.type);
-                        targetRow.find('input[name*="[uom]"]').val(result.value.uom);
-                        
-                        $('#componentModal').modal('hide');
-                        Swal.fire('Berhasil', 'Material baru telah dibuat dan dipilih!', 'success');
-                    },
-                    error: function() {
-                        Swal.fire('Error', 'Gagal membuat material baru!', 'error');
-                    }
-                });
-            }
-        });
-    });
-
-    // Manual input for component material code
-    $(document).on('input', '.comp-material-search', function() {
-        let $this = $(this);
-        let code = $this.val();
-        let row = $this.closest('tr');
-        
-        if(code.length >= 3) {
-            // Search existing material
-            $.ajax({
-                url: "{{ url($url_menu . '/add') }}", // Menggunakan route add yang sama
-                type: 'GET',
-                data: { 
-                    action: 'search_material_by_code',
-                    code: code 
-                },
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                success: function(data) {
-                    if(data) {
-                        row.find('input[name*="[comp_desc]"]').val(data.description || '');
-                        row.find('input[name*="[type]"]').val(data.type || '');
-                        row.find('input[name*="[uom]"]').val(data.uom || '');
-                    } else {
-                        // Clear related fields if not found
-                        row.find('input[name*="[comp_desc]"]').val('');
-                        row.find('input[name*="[type]"]').val('');
-                        row.find('input[name*="[uom]"]').val('');
-                    }
-                }
-            });
-        }
-    });
-
     // ========== ALTERNATIVE BOM TEXT ==========
     $(document).on('click', '.alt-bom-apply-btn', function() {
         let index = $(this).data('index');
@@ -682,8 +512,8 @@ $(document).ready(function() {
     // ========== TABLE ROW MANAGEMENT ==========
     function addTableRow(tableIndex, rowNumber, data = {}) {
         let itemNumber = (rowNumber * 10).toString().padStart(4, '0');
-        let productQty = data.product_qty || window.currentProductQty || '';
-        let baseUomHeader = data.base_uom_header || window.currentBaseUomHeader || '';
+        let productQty = data.product_qty || '';
+        let baseUomHeader = data.base_uom_header || '';
 
         let rowHtml = `<tr>
             <td>${rowNumber}</td>
@@ -694,8 +524,8 @@ $(document).ready(function() {
             <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][item_number]" value="${itemNumber}" readonly /></td>
             <td><input type="text" class="form-control" name="bom_data[${tableIndex}][detail][${rowNumber}][type]" value="${typeof data.type !== 'undefined' && data.type !== '' ? data.type : 'L'}" readonly /></td>
             <td><div class="input-group">
-                <input type="text" class="form-control comp-material-search" name="bom_data[${tableIndex}][detail][${rowNumber}][comp_material_code]" value="${data.comp_material_code || ''}" autocomplete="off" />
-                <span class="input-group-text bg-info text-light comp-search-btn" style="cursor: pointer;" data-table-index="${tableIndex}" data-row-index="${rowNumber}">
+                <input type="text" class="form-control comp-material-search" name="bom_data[${tableIndex}][detail][${rowNumber}][comp_material_code]" value="${data.comp_material_code || ''}" placeholder="Pilih Component..." readonly />
+                <span class="input-group-text bg-primary text-light" style="cursor: pointer;" onclick="openComponentModal(${tableIndex}, ${rowNumber})">
                     <i class="fas fa-search"></i>
                 </span>
             </div></td>
@@ -715,6 +545,7 @@ $(document).ready(function() {
         let table = $(`#datatable-bom-${index}`).DataTable();
         let lastRow = table.row(':last').node();
         let newRowNumber = table.rows().count() + 1;
+        
         if(lastRow) {
             // Copy ALL input values from last row
             let lastRowData = {};
@@ -726,10 +557,6 @@ $(document).ready(function() {
                 lastRowData[key] = value;
             });
             addTableRow(index, newRowNumber, lastRowData);
-            // Update data-row-index pada semua tombol search di kolom Comp Material Code
-            $(`#datatable-bom-${index} tbody tr`).each(function(rowIdx, tr) {
-                $(tr).find('.comp-search-btn').attr('data-row-index', rowIdx + 1);
-            });
             table.draw();
         } else {
             addTableRow(index, 1);
@@ -750,6 +577,76 @@ $(document).ready(function() {
         });
     });
 
+    // Create new material functionality
+    $(document).on('click', '#create-new-material', function() {
+        Swal.fire({
+            title: 'Buat Material Baru',
+            html: `
+                <div class="text-start">
+                    <div class="mb-3">
+                        <label class="form-label">Kode Material:</label>
+                        <input type="text" id="new-material-code" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Deskripsi:</label>
+                        <input type="text" id="new-material-desc" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">UOM:</label>
+                        <input type="text" id="new-material-uom" class="form-control">
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Simpan',
+            cancelButtonText: 'Batal',
+            preConfirm: () => {
+                let code = $('#new-material-code').val();
+                let desc = $('#new-material-desc').val();
+                let uom = $('#new-material-uom').val();
+                
+                if(!code) {
+                    Swal.showValidationMessage('Kode material harus diisi!');
+                    return false;
+                }
+                
+                return { code, desc, uom };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Create new material via AJAX
+                $.ajax({
+                    url: "{{ url($url_menu . '/add') }}",
+                    type: 'POST',
+                    data: {
+                        action: 'create_material',
+                        material_code: result.value.code,
+                        description: result.value.desc,
+                        uom: result.value.uom,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(response) {
+                        // Fill the specific row with new material data
+                        let targetRow = $(`input[name="bom_data[${currentTargetIndex}][detail][${currentRowIndex}][comp_material_code]"]`).closest('tr');
+                        targetRow.find('input[name*="[comp_material_code]"]').val(result.value.code);
+                        targetRow.find('input[name*="[comp_desc]"]').val(result.value.desc);
+                        targetRow.find('input[name*="[type]"]').val('L');
+                        targetRow.find('input[name*="[uom]"]').val(result.value.uom);
+                        
+                        $('#componentModal').modal('hide');
+                        Swal.fire('Berhasil', 'Material baru telah dibuat dan dipilih!', 'success');
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Gagal membuat material baru!', 'error');
+                    }
+                });
+            }
+        });
+    });
+
     // Hide dropdowns when clicking outside
     $(document).on('click', function(e) {
         if (!$(e.target).closest('.material-search, .material-dropdown').length) {
@@ -757,78 +654,77 @@ $(document).ready(function() {
         }
     });
 
-    // Form validation before submit
-    $('form').on('submit', function(e) {
+    // Function validate and submit - sama seperti trordr
+    function validateAndSubmit() {
         let isValid = true;
         let errorMessages = [];
 
         // Validate each BOM form
-        $('.card').each(function(index) {
-            let cardIndex = index + 1;
-            let resource = $(`#resource-${cardIndex}`).val();
-            let material = $(`#material-${cardIndex}`).val();
-            let altBomText = $(`#alt_bom_text-${cardIndex}`).val();
+        @for ($i = 1; $i <= $rows; $i++)
+        let resource{{ $i }} = $('#resources-{{ $i }}').val();
+        let material{{ $i }} = $('#material-{{ $i }}').val();
+        let altBomText{{ $i }} = $('#alt_bom_text-{{ $i }}').val();
 
-            if (!resource) {
-                errorMessages.push(`Form #${cardIndex}: Resource belum dipilih`);
-                isValid = false;
-            }
+        if (!resource{{ $i }}) {
+            errorMessages.push('Form #{{ $i }}: Resource belum dipilih');
+            isValid = false;
+        }
 
-            if (!material) {
-                errorMessages.push(`Form #${cardIndex}: Material FG/SFG belum dipilih`);
-                isValid = false;
-            }
+        if (!material{{ $i }}) {
+            errorMessages.push('Form #{{ $i }}: Material FG/SFG belum dipilih');
+            isValid = false;
+        }
 
-            if (!altBomText) {
-                errorMessages.push(`Form #${cardIndex}: Alternative BOM Text belum diisi`);
-                isValid = false;
-            }
+        if (!altBomText{{ $i }}) {
+            errorMessages.push('Form #{{ $i }}: Alternative BOM Text belum diisi');
+            isValid = false;
+        }
 
-            // Validate table rows
-            let table = $(`#datatable-bom-${cardIndex}`).DataTable();
-            let hasRows = table.rows().count() > 0;
-            
-            if (!hasRows) {
-                errorMessages.push(`Form #${cardIndex}: Belum ada data detail transaksi`);
-                isValid = false;
-            } else {
-                // Validate each row has required data
-                table.rows().every(function() {
-                    let row = this.node();
-                    let compCode = $(row).find('input[name*="[comp_material_code]"]').val();
-                    let compQty = $(row).find('input[name*="[comp_qty]"]').val();
-                    
-                    if (!compCode) {
-                        errorMessages.push(`Form #${cardIndex}: Ada baris yang belum memiliki Comp Material Code`);
-                        isValid = false;
-                    }
-                    
-                    if (!compQty || compQty <= 0) {
-                        errorMessages.push(`Form #${cardIndex}: Ada baris yang belum memiliki Comp QTY yang valid`);
-                        isValid = false;
-                    }
-                });
-            }
-        });
+        // Validate table rows
+        let table{{ $i }} = $('#datatable-bom-{{ $i }}').DataTable();
+        let hasRows{{ $i }} = table{{ $i }}.rows().count() > 0;
+        
+        if (!hasRows{{ $i }}) {
+            errorMessages.push('Form #{{ $i }}: Belum ada data detail transaksi');
+            isValid = false;
+        } else {
+            // Validate each row has required data
+            table{{ $i }}.rows().every(function() {
+                let row = this.node();
+                let compCode = $(row).find('input[name*="[comp_material_code]"]').val();
+                let compQty = $(row).find('input[name*="[comp_qty]"]').val();
+                
+                if (!compCode) {
+                    errorMessages.push('Form #{{ $i }}: Ada baris yang belum memiliki Comp Material Code');
+                    isValid = false;
+                }
+                
+                if (!compQty || compQty <= 0) {
+                    errorMessages.push('Form #{{ $i }}: Ada baris yang belum memiliki Comp QTY yang valid');
+                    isValid = false;
+                }
+            });
+        }
+        @endfor
 
         if (!isValid) {
-            e.preventDefault();
             Swal.fire({
                 title: 'Validasi Error',
                 html: errorMessages.join('<br>'),
                 icon: 'error',
                 confirmButtonText: 'OK'
             });
+        } else {
+            document.getElementById('{{ $dmenu }}-form').submit();
         }
-    });
+    }
 
-    // Auto-resize textareas if any
-    $('textarea').each(function() {
-        this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
-    }).on('input', function() {
-        this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
-    });
+    // Expose functions to global scope
+    window.openResourceModal = openResourceModal;
+    window.selectResource = selectResource;
+    window.openComponentModal = openComponentModal;
+    window.selectComponent = selectComponent;
+    window.validateAndSubmit = validateAndSubmit;
 });
 </script>
 @endpush
