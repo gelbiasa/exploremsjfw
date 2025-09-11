@@ -8,7 +8,7 @@
                 <div class="col-lg">
                     <div class="nav-wrapper">
                         {{-- button back --}}
-                        <button class="btn btn-secondary mb-0" onclick="history.back()"><i class="fas fa-circle-left me-1">
+                        <button class="btn btn-secondary mb-0" onclick="window.location='{{ URL::to($url_menu) }}'"><i class="fas fa-circle-left me-1">
                             </i><span class="font-weight-bold">Kembali</button>
                         {{-- check authorize add --}}
                         @if ($authorize->add == '1')
@@ -68,7 +68,14 @@
                 <div class="col-md-12 mb-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="mb-3">Form Transaksi BOM #{{ $i }}</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Form Transaksi BOM #{{ $i }}</h5>
+                                @if ($i == $rows && $rows > 1)
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-hapus-halaman" title="Hapus Halaman" style="margin-left: 10px;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                @endif
+                            </div>
                             <div class="row">
                                 {{-- Resource Search --}}
                                 <div class="col-md-6 mb-3">
@@ -161,12 +168,17 @@
                 </div>
                 @endfor
             </div>
-            <div class="row">
-                <div class="col-12 text-end">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk me-1"></i> Simpan</button>
-                </div>
-            </div>
         </form>
+    </div>
+
+    <div class="container-fluid py-2">
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <button type="button" class="btn btn-success" id="btnTambahHalaman">
+                    <i class="fas fa-plus me-1"></i> Tambah Halaman
+                </button>
+            </div>
+        </div>
     </div>
 
     {{-- Modal Resource Selection - Framework Style seperti trordr --}}
@@ -775,6 +787,22 @@ $(document).ready(function() {
             window.location = "{{ URL::to($url_menu . '/add') }}?rows=" + jumlahBaris;
         } else {
             Swal.fire('Warning', 'Masukkan jumlah baris yang valid!', 'warning');
+        }
+    });
+
+    // Event untuk tombol tambah halaman di bawah
+    $('#btnTambahHalaman').on('click', function() {
+        var currentRows = parseInt('{{ $rows }}');
+        var nextRows = currentRows + 1;
+        window.location = "{{ URL::to($url_menu . '/add') }}?rows=" + nextRows;
+    });
+
+    // Event untuk tombol hapus halaman (silang)
+    $(document).on('click', '.btn-hapus-halaman', function() {
+        var currentRows = parseInt('{{ $rows }}');
+        if (currentRows > 1) {
+            var nextRows = currentRows - 1;
+            window.location = "{{ URL::to($url_menu . '/add') }}?rows=" + nextRows;
         }
     });
 
