@@ -80,8 +80,8 @@
                                 {{-- Resource Search --}}
                                 <div class="col-md-6 mb-3">
                                     <label class="form-control-label">Resources <span class="text-danger">*</span></label>
+                                    <input type="hidden" name="bom_data[{{ $i }}][resources]" id="resources-{{ $i }}" required>
                                     <div class="input-group">
-                                        <input type="hidden" name="bom_data[{{ $i }}][resources]" id="resources-{{ $i }}" required>
                                         <input type="text" class="form-control" id="resource_display_{{ $i }}" placeholder="Pilih Resource..." readonly>
                                         <span class="input-group-text bg-primary text-light" onclick="openResourceModal({{ $i }})" style="cursor: pointer;">
                                             <i class="fas fa-search"></i>
