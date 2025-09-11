@@ -108,6 +108,21 @@ class TrbomjController extends Controller
         }
 
         if ($data['authorize']->add == '1') {
+            // Ambil data resources untuk modal - sama seperti konsep trordr
+            $data['resources'] = DB::table('trs_bom_h')
+                ->where('isactive', '1')
+                ->select('resource', 'mat_type', 'width', 'length', 'capacity')
+                ->distinct()
+                ->orderBy('resource', 'asc')
+                ->get();
+
+            // Ambil data component materials untuk modal - sama seperti konsep trordr
+            $data['components'] = DB::table('mst_material')
+                ->where('isactive', '1')
+                ->select('kode_baru_fg as material_code', 'product_name as description', 'alt_uom as uom')
+                ->orderBy('kode_baru_fg', 'asc')
+                ->get();
+
             // return page menu
             return view($data['url'], $data);
         } else {
@@ -388,14 +403,10 @@ class TrbomjController extends Controller
         $action = request()->get('action');
 
         switch ($action) {
-            case 'get_resources':
-                return $this->getAllResources();
             case 'search_material':
                 return $this->searchMaterial();
             case 'get_material_components':
                 return $this->getMaterialComponents();
-            case 'get_component_materials':
-                return $this->getComponentMaterials();
             case 'create_material':
                 return $this->createComponentMaterial();
             case 'search_material_by_code':
@@ -405,20 +416,6 @@ class TrbomjController extends Controller
             default:
                 return response()->json(['error' => 'Invalid action'], 400);
         }
-    }
-
-    /**
-     * Get all active resources for modal selection
-     */
-    private function getAllResources()
-    {
-        $resources = DB::table('trs_bom_h')
-            ->where('isactive', '1')
-            ->select('resource', 'mat_type', 'width', 'length', 'capacity')
-            ->orderBy('resource', 'asc')
-            ->get();
-
-        return response()->json($resources);
     }
 
     /**
@@ -475,19 +472,6 @@ class TrbomjController extends Controller
         }
 
         return response()->json($result);
-    }
-
-    /**
-     * Get all component materials for modal selection
-     */
-    private function getComponentMaterials()
-    {
-        $comps = DB::table('mst_material')
-            ->select('kode_baru_fg as material_code', 'product_name as description', 'alt_uom as uom')
-            ->orderBy('kode_baru_fg', 'asc')
-            ->get();
-
-        return response()->json($comps);
     }
 
     /**
