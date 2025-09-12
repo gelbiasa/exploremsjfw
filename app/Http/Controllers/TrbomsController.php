@@ -32,9 +32,15 @@ class TrbomsController extends Controller
     {
         // function helper
         $data['format'] = new Format_Helper;
-        //list data table
-        
-        //list data table untuk detail (kosong dulu, akan diisi via ajax)
+
+        // Ambil data header BOM yang aktif dan material_fg_sfg diawali '7'
+        $data['table_detail_h'] = DB::table('trs_bom_h')
+            ->where('isactive', '1')
+            ->whereRaw("LEFT(material_fg_sfg, 1) = '7'")
+            ->orderBy('trs_bom_h_id', 'desc')
+            ->get();
+
+        // List data table untuk detail (kosong dulu, akan diisi via ajax)
         $data['table_detail_d'] = collect();
 
         if ($data) {
@@ -61,44 +67,36 @@ class TrbomsController extends Controller
         } catch (DecryptException $e) {
             $id = "";
         }
-        // data primary key
-        $primaryArray = explode(':', $id);
-        //list data table
-        $data['table_header_h'] = DB::table('sys_table')->where(['gmenu' => $data['gmenuid'], 'dmenu' => $data['dmenu'], 'list' => '1', 'position' => '1'])->orderBy('urut')->get();
-        $i = 0;
-        $wherekey_h = [];
-        foreach ($data['table_header_h'] as $key_h) {
-            $wherekey_h[$key_h->field] = $primaryArray[$i];
-            $i++;
-        }
+
         // ajax id
         $data['ajaxid'] = $id;
-        //list data table
-        $data['table_detail_d_ajax'] = DB::table($data['tabel'])->where($wherekey_h)->get();
-        $data['table_primary_d_ajax'] = DB::table('sys_table')->where(['gmenu' => $_GET['gmenu'], 'dmenu' => $_GET['dmenu'], 'primary' => '1'])->orderBy('urut')->get();
-        $data['table_header_d'] = DB::table('sys_table')->where(['gmenu' => $data['gmenuid'], 'dmenu' => $data['dmenu'], 'list' => '1', 'position' => '2'])->orderBy('urut')->get();
-        $data['table_header_d_ajax'] = DB::table('sys_table')->where(['gmenu' => $_GET['gmenu'], 'dmenu' => $_GET['dmenu'], 'list' => '1', 'position' => '2'])->orderBy('urut')->get();
-        // set encrypt primery key
+
+        // Pastikan header masih aktif
+    $headerExists = DB::table('trs_bom_h')
+            ->where('trs_bom_h_id', $id)
+            ->where('isactive', '1')
+            ->exists();
+
+        if (!$headerExists) {
+            return response()->json(['error' => 'Header data not found or inactive'], 404);
+        }
+
+        // Ambil data detail berdasarkan header id - HANYA yang aktif (enum '1')
+    $data['table_detail_d_ajax'] = DB::table('trs_bom_d')
+            ->where('fk_trs_bom_h_id', $id)
+            ->where('isactive', '1')
+            ->whereNotNull('comp_material_code')
+            ->where('comp_material_code', '!=', '')
+            ->orderBy('item_number', 'asc')
+            ->orderBy('trs_bom_d_id', 'asc')
+            ->get();
+
+        // Set encrypt primary key untuk detail
         $data['encrypt_primary'] = array();
-        $data['data_join'] = array();
-        $query_join = DB::table('sys_table')->where(['gmenu' => $_GET['gmenu'], 'dmenu' => $_GET['dmenu'], 'position' => '2', 'type' => 'join'])->whereNot('query', '')->orderBy('urut')->first();
         foreach ($data['table_detail_d_ajax'] as $detail) {
-            $data_primary = '';
-            foreach ($data['table_primary_d_ajax'] as $primary) {
-                ($data_primary == '') ? $data_primary = $detail->{$primary->field} : $data_primary = $data_primary . ':' . $detail->{$primary->field};
-            }
-            if ($query_join) {
-                $val_join =  DB::select($query_join->query . " '" . $detail->{$query_join->field} . "'");
-                array_push($data['data_join'], $val_join);
-            }
-            array_push($data['encrypt_primary'], encrypt($data_primary));
+            array_push($data['encrypt_primary'], encrypt($detail->trs_bom_d_id));
         }
-        // data query
-        $data['table_query_ajax'] = DB::table('sys_table')->where(['gmenu' => $_GET['gmenu'], 'dmenu' => $_GET['dmenu'], 'position' => '2'])->whereNot('query', '')->whereNot('type', 'join')->orderBy('urut')->get();
-        foreach ($data['table_query_ajax'] as $query) {
-            $data[$query->field] = DB::select($query->query);
-        }
-        // }
+
         return json_encode($data);
     }
     /**
@@ -122,7 +120,7 @@ class TrbomsController extends Controller
             return view($data['url'], $data);
         } else {
             //if not athorize
-            $data['url_menu'] = $data['url_menu'];
+            // $data['url_menu'] = $data['url_menu'];
             $data['title_group'] = 'Error';
             $data['title_menu'] = 'Error';
             $data['errorpages'] = 'Not Authorized!';
@@ -247,33 +245,45 @@ class TrbomsController extends Controller
      */
     public function show($data)
     {
-        //check decrypt
+        // Dekripsi id detail BOM
         try {
             $id = decrypt($data['idencrypt']);
         } catch (DecryptException $e) {
             $id = "";
         }
-        // data primary key
-        $primaryArray = explode(':', $id);
-        $wherekey = [];
-        $i = 0;
-        foreach ($data['table_primary'] as $key) {
-            $wherekey[$key->field] = $primaryArray[$i];
-            $i++;
-        }
-        $list = DB::table($data['tabel'])->where($wherekey)->first();
-        // check data list
-        if ($list) {
-            $data['list'] = $list;
-            // return page menu
+
+        // Ambil data detail yang aktif (baris yang dipilih)
+        $selectedRow = DB::table('trs_bom_d')
+            ->where('trs_bom_d_id', $id)
+            ->where('isactive', '1')
+            ->first();
+
+        if ($selectedRow) {
+            // Ambil data header BOM
+            $bom = DB::table('trs_bom_h')
+                ->where('trs_bom_h_id', $selectedRow->fk_trs_bom_h_id)
+                ->where('isactive', '1')
+                ->first();
+
+            // Ambil semua baris detail BOM
+            $allRows = DB::table('trs_bom_d')
+                ->where('fk_trs_bom_h_id', $selectedRow->fk_trs_bom_h_id)
+                ->where('isactive', '1')
+                ->orderBy('item_number', 'asc')
+                ->orderBy('trs_bom_d_id', 'asc')
+                ->get();
+
+            $data['bom'] = $bom;
+            $data['selectedRow'] = $selectedRow;
+            $data['allRows'] = $allRows;
+            $data['list'] = $selectedRow; // untuk kebutuhan lama
+
             return view($data['url'], $data);
         } else {
-            //if not exist
             $data['url_menu'] = 'error';
             $data['title_group'] = 'Error';
             $data['title_menu'] = 'Error';
-            $data['errorpages'] = 'Not Found!';
-            //return error page
+            $data['errorpages'] = 'Data Not Found or Inactive!';
             return view("pages.errorpages", $data);
         }
     }
@@ -311,7 +321,7 @@ class TrbomsController extends Controller
                 return view($data['url'], $data);
             } else {
                 //if not athorize
-                $data['url_menu'] = $data['url_menu'];
+                // $data['url_menu'] = $data['url_menu'];
                 $data['title_group'] = 'Error';
                 $data['title_menu'] = 'Error';
                 $data['errorpages'] = 'Not Authorized!';
