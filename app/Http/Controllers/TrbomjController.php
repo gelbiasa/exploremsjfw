@@ -413,6 +413,8 @@ class TrbomjController extends Controller
                 return $this->searchMaterialByCode();
             case 'search_comp':
                 return $this->searchComp();
+            case 'get_recommendations':
+                return app(RumusAndTemplateController::class)->getRecommendations(request());
             default:
                 return response()->json(['error' => 'Invalid action'], 400);
         }
