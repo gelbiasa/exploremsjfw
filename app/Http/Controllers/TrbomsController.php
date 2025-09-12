@@ -33,10 +33,10 @@ class TrbomsController extends Controller
         // function helper
         $data['format'] = new Format_Helper;
 
-        // Ambil data header BOM yang aktif dan material_fg_sfg tidak diawali '7'
-    $data['table_detail_h'] = DB::table('trs_bom_h')
+        // Ambil data header BOM yang aktif dan material_fg_sfg diawali '7'
+        $data['table_detail_h'] = DB::table('trs_bom_h')
             ->where('isactive', '1')
-            ->whereRaw("LEFT(material_fg_sfg, 1) != '7'")
+            ->whereRaw("LEFT(material_fg_sfg, 1) = '7'")
             ->orderBy('trs_bom_h_id', 'desc')
             ->get();
 
