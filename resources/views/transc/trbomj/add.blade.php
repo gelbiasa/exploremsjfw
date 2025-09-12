@@ -1,7 +1,15 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
+
+{{-- Include Value Recommendation Component --}}
+@include('components.value-recommendation')
+
 {{-- section content --}}
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => ''])
+    
+    <!-- Add CSRF token for AJAX requests -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
     <div class="card shadow-lg mx-4">
         <div class="card-body p-3">
             <div class="row gx-4">
@@ -89,17 +97,15 @@
                                     </div>
                                 </div>
 
-                                {{-- Material FG/SFG Search --}}
+                                {{-- Material FG/SFG Search dengan Recommendation --}}
                                 <div class="col-md-6 mb-3">
                                     <label class="form-control-label">Material FG/SFG <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control material-search" name="bom_data[{{ $i }}][material]" id="material-{{ $i }}" autocomplete="off" placeholder="Cari Material...">
+                                        <input type="text" class="form-control material-search-recommendation" name="bom_data[{{ $i }}][material]" id="material-{{ $i }}" autocomplete="off" placeholder="Cari Material...">
                                         <span class="input-group-text bg-primary text-light material-apply-btn" style="cursor: pointer;" data-index="{{ $i }}">
                                             <i class="fas fa-check"></i>
                                         </span>
                                     </div>
-                                    {{-- Material dropdown --}}
-                                    <div class="dropdown-menu material-dropdown" id="material-dropdown-{{ $i }}" style="width: 100%; max-height: 200px; overflow-y: auto;"></div>
                                 </div>
 
                                 {{-- Auto-filled fields from Resource --}}
@@ -120,12 +126,12 @@
                                     <input type="number" class="form-control capacity" name="bom_data[{{ $i }}][capacity]" id="capacity-{{ $i }}">
                                 </div>
 
-                                {{-- Alternative BOM Text Custom --}}
+                                {{-- Alternative BOM Text Custom dengan Recommendation --}}
                                 <div class="col-md-6 mb-3">
                                     <label class="form-control-label">Alternative BOM Text Custom <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text machine-code" id="machine-code-{{ $i }}"></span>
-                                        <input type="text" class="form-control alt-bom-input" name="bom_data[{{ $i }}][alt_bom_text]" id="alt_bom_text-{{ $i }}" placeholder="Input Custom...">
+                                        <input type="text" class="form-control alt-bom-input-recommendation" name="bom_data[{{ $i }}][alt_bom_text]" id="alt_bom_text-{{ $i }}" placeholder="Input Custom...">
                                         <span class="input-group-text bg-primary text-light alt-bom-apply-btn" style="cursor: pointer;" data-index="{{ $i }}">
                                             <i class="fas fa-check"></i>
                                         </span>
@@ -482,7 +488,7 @@ $(document).ready(function() {
         let keyword = $this.val().toLowerCase();
         let index = $this.attr('id').split('-')[1];
         
-        if(keyword.length >= 2) {
+        if(keyword.length >= 1) {
             searchMaterials(keyword, index);
         } else {
             $(`#material-dropdown-${index}`).hide();
@@ -812,6 +818,40 @@ $(document).ready(function() {
     window.openComponentModal = openComponentModal;
     window.selectComponent = selectComponent;
     window.validateAndSubmit = validateAndSubmit;
+
+    // Initialize Value Recommendation Components - TAMBAHKAN DI SINI
+    
+    // Material FG/SFG Recommendations
+    new ValueRecommendation({
+        inputSelector: '.material-search-recommendation',
+        apiUrl: "{{ url($url_menu . '/add') }}", // Menggunakan endpoint controller yang sudah ada
+        type: 'material',
+        onSelect: function(value, input) {
+            console.log('Material selected:', value);
+            // Trigger existing material selection logic if needed
+            $(input).trigger('material-selected', [value]);
+        }
+    });
+    
+    // Alternative BOM Text Recommendations
+    new ValueRecommendation({
+        inputSelector: '.alt-bom-input-recommendation',
+        apiUrl: "{{ url($url_menu . '/add') }}", // Menggunakan endpoint controller yang sudah ada
+        type: 'altbom',
+        onSelect: function(value, input) {
+            console.log('Alt BOM Text selected:', value);
+            // Auto-apply the selected text with machine code
+            const index = $(input).attr('id').split('-')[3];
+            const machineCode = $(`#machine-code-${index}`).text();
+            const fullText = machineCode + value;
+            
+            // Update the input value
+            $(input).val(value);
+            
+            // You can trigger auto-apply if needed
+            // $(`#alt_bom_text-${index}`).val(value);
+        }
+    });
 });
 </script>
 @endpush
