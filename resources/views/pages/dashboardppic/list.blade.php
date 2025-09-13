@@ -20,7 +20,7 @@
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
                             <p class="text-sm text-uppercase fw-bold mb-0">Total Seluruh Transaksi Upload BOM</p>
-                            <h3 class="fw-bold">120</h3>
+                            <h3 class="fw-bold">{{ $totalTransaksi }}</h3>
                         </div>
                         <div class="text-success fs-3">
                             <i class="ni ni-cloud-upload-96"></i>
@@ -34,7 +34,7 @@
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
                             <p class="text-sm text-uppercase fw-bold mb-0">Transaksi Upload BOM Jumbo</p>
-                            <h4 class="fw-bold">45</h4>
+                            <h4 class="fw-bold">{{ $totalJumbo }}</h4>
                         </div>
                         <div class="fs-3 text-primary">
                             <i class="ni ni-archive-2"></i>
