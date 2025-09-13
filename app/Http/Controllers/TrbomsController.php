@@ -114,13 +114,27 @@ class TrbomsController extends Controller
         } catch (DecryptException $e) {
             $id = "";
         }
-        
+
         if ($data['authorize']->add == '1') {
+            // Ambil data resources untuk modal
+            $data['resources'] = DB::table('trs_bom_h')
+                ->where('isactive', '1')
+                ->select('resource', 'mat_type', 'width', 'length', 'capacity')
+                ->distinct()
+                ->orderBy('resource', 'asc')
+                ->get();
+
+            // Ambil data component materials untuk modal
+            $data['components'] = DB::table('mst_material')
+                ->where('isactive', '1')
+                ->select('kode_baru_fg as material_code', 'product_name as description', 'alt_uom as uom')
+                ->orderBy('kode_baru_fg', 'asc')
+                ->get();
+
             // return page menu
             return view($data['url'], $data);
         } else {
             //if not athorize
-            // $data['url_menu'] = $data['url_menu'];
             $data['title_group'] = 'Error';
             $data['title_menu'] = 'Error';
             $data['errorpages'] = 'Not Authorized!';
