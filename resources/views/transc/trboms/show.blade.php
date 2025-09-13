@@ -82,9 +82,9 @@
 
                             {{-- Baris Yang Dipilih --}}
                             <h6 class="fw-bold">Baris Yang Dipilih</h6>
-                            <div class="table-responsive" style="max-height: 250px; overflow-y:auto;">
-                                <table class="table table-bordered table-striped align-middle">
-                                    <thead class="table-info text-center">
+                            <div class="table-responsive">
+                                <table class="table display" id="selected-row-table">
+                                    <thead class="thead-light" style="background-color: #00b7bd4f;">
                                         <tr>
                                             <th>No</th>
                                             <th>ALTERNATIVE BOM TEXT</th>
@@ -121,9 +121,9 @@
 
                             {{-- Semua Baris Pada Data Transaction BOM --}}
                             <h6 class="fw-bold">Semua Baris Pada Data Transaction BOM</h6>
-                            <div class="table-responsive" style="max-height: 300px; overflow-y:auto;">
-                                <table class="table table-bordered table-striped align-middle">
-                                    <thead class="table-info text-center">
+                            <div class="table-responsive">
+                                <table class="table display" id="all-rows-table">
+                                    <thead class="thead-light" style="background-color: #00b7bd4f;">
                                         <tr>
                                             <th>No</th>
                                             <th>ALTERNATIVE BOM TEXT</th>
@@ -192,23 +192,176 @@
             $('#{{ $dmenu }}-form').find('input').attr('disabled', 'disabled');
             $('#{{ $dmenu }}-form').find('select').attr('disabled', 'disabled');
             $('#{{ $dmenu }}-form').find('textarea').attr('disabled', 'disabled');
-            $('#{{ $dmenu }}-form').find('input[key="true"]').parent('.form-group').css('display',
-                '');
-            $('#{{ $dmenu }}-form').find('select[key="true"]').parent('.form-group').css('display',
-                '');
+            $('#{{ $dmenu }}-form').find('input[key="true"]').parent('.form-group').css('display', '');
+            $('#{{ $dmenu }}-form').find('select[key="true"]').parent('.form-group').css('display', '');
             $('.icon-modal-search').css('display', 'none');
+
+            // Initialize DataTables untuk kedua tabel dengan framework style - TAMBAHKAN BAGIAN INI
+            try {
+                // Initialize Selected Row Table
+                $('#selected-row-table').DataTable({
+                    "language": {
+                        "search": "Cari :",
+                        "lengthMenu": "Tampilkan _MENU_ baris",
+                        "zeroRecords": "Tidak ada baris yang dipilih",
+                        "info": "Data _START_ - _END_ dari _TOTAL_",
+                        "infoEmpty": "Tidak ada data",
+                        "infoFiltered": "(pencarian dari _MAX_ data)",
+                        "paginate": {
+                            "first": "Pertama",
+                            "last": "Terakhir",
+                            "next": "Next",
+                            "previous": "Previous"
+                        }
+                    },
+                    "pageLength": 5,
+                    "lengthMenu": [5, 10, 25, 50],
+                    responsive: true,
+                    dom: 'lfrtip', // Layout framework tanpa buttons
+                    "order": [[ 0, "asc" ]], // Sort by No column
+                    "paging": true,
+                    "searching": true,
+                    "info": true,
+                    "lengthChange": true,
+                    "autoWidth": false,
+                    "columnDefs": [
+                        {
+                            "targets": [0], // No column
+                            "width": "5%",
+                            "className": "text-center"
+                        },
+                        {
+                            "targets": [1], // Alternative BOM Text
+                            "width": "15%"
+                        },
+                        {
+                            "targets": [2, 3], // Product QTY, Base UOM Header
+                            "width": "10%",
+                            "className": "text-center"
+                        },
+                        {
+                            "targets": [4], // Item Number
+                            "width": "10%",
+                            "className": "text-center"
+                        },
+                        {
+                            "targets": [5], // Type
+                            "width": "8%",
+                            "className": "text-center"
+                        },
+                        {
+                            "targets": [6, 7], // Comp Material Code, Comp Desc
+                            "width": "15%"
+                        },
+                        {
+                            "targets": [8], // Comp QTY
+                            "width": "10%",
+                            "className": "text-end"
+                        },
+                        {
+                            "targets": [9], // UOM
+                            "width": "8%",
+                            "className": "text-center"
+                        }
+                    ],
+                    "responsive": {
+                        "details": {
+                            "type": 'column',
+                            "target": 'tr'
+                        }
+                    }
+                });
+
+                // Initialize All Rows Table
+                $('#all-rows-table').DataTable({
+                    "language": {
+                        "search": "Cari :",
+                        "lengthMenu": "Tampilkan _MENU_ baris",
+                        "zeroRecords": "Tidak ada data transaction BOM",
+                        "info": "Data _START_ - _END_ dari _TOTAL_",
+                        "infoEmpty": "Tidak ada data",
+                        "infoFiltered": "(pencarian dari _MAX_ data)",
+                        "paginate": {
+                            "first": "Pertama",
+                            "last": "Terakhir",
+                            "next": "Next",
+                            "previous": "Previous"
+                        }
+                    },
+                    "pageLength": 10,
+                    "lengthMenu": [5, 10, 25, 50],
+                    responsive: true,
+                    dom: 'lfrtip', // Layout framework tanpa buttons
+                    "order": [[ 0, "asc" ]], // Sort by No column
+                    "paging": true,
+                    "searching": true,
+                    "info": true,
+                    "lengthChange": true,
+                    "autoWidth": false,
+                    "columnDefs": [
+                        {
+                            "targets": [0], // No column
+                            "width": "5%",
+                            "className": "text-center"
+                        },
+                        {
+                            "targets": [1], // Alternative BOM Text
+                            "width": "15%"
+                        },
+                        {
+                            "targets": [2, 3], // Product QTY, Base UOM Header
+                            "width": "10%",
+                            "className": "text-center"
+                        },
+                        {
+                            "targets": [4], // Item Number
+                            "width": "10%",
+                            "className": "text-center"
+                        },
+                        {
+                            "targets": [5], // Type
+                            "width": "8%",
+                            "className": "text-center"
+                        },
+                        {
+                            "targets": [6, 7], // Comp Material Code, Comp Desc
+                            "width": "15%"
+                        },
+                        {
+                            "targets": [8], // Comp QTY
+                            "width": "10%",
+                            "className": "text-end"
+                        },
+                        {
+                            "targets": [9], // UOM
+                            "width": "8%",
+                            "className": "text-center"
+                        }
+                    ],
+                    "responsive": {
+                        "details": {
+                            "type": 'column',
+                            "target": 'tr'
+                        }
+                    }
+                });
+
+                console.log('DataTables initialized successfully for show page');
+            } catch (error) {
+                console.error('Error initializing DataTables:', error);
+            }
+
             // function enable input form
             function enable_text() {
                 $('#{{ $dmenu }}-form').find('label').removeClass('disabled');
                 $('#{{ $dmenu }}-form').find('input').removeAttr('disabled');
                 $('#{{ $dmenu }}-form').find('select').removeAttr('disabled');
                 $('#{{ $dmenu }}-form').find('textarea').removeAttr('disabled');
-                $('#{{ $dmenu }}-form').find('input[key="true"]').parent('.form-group').css('display',
-                    'none');
-                $('#{{ $dmenu }}-form').find('select[key="true"]').parent('.form-group').css('display',
-                    'none');
+                $('#{{ $dmenu }}-form').find('input[key="true"]').parent('.form-group').css('display', 'none');
+                $('#{{ $dmenu }}-form').find('select[key="true"]').parent('.form-group').css('display', 'none');
                 $('.icon-modal-search').css('display', '');
             }
+            
             //event button edit
             $('#{{ $dmenu }}-edit').click(function() {
                 enable_text();
