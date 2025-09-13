@@ -6,7 +6,8 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="text-center">
+                {{-- Ubah margin-bottom pada judul --}}
+                <div class="text-center" style="margin-bottom: -35px;">
                     <h4 class="fw-bold">PPIC Dashboard</h4>
                     <p class="text-muted">BOM Upload Transaction Summary</p>
                 </div>

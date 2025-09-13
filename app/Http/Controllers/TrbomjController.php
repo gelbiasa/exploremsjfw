@@ -143,13 +143,11 @@ class TrbomjController extends Controller
      */
     public function store($data)
     {
-        // function helper
         $syslog = new Function_Helper;
 
         try {
             DB::beginTransaction();
 
-            // Validasi input dasar
             request()->validate([
                 'bom_data' => 'required|array|min:1',
                 'bom_data.*.resources' => 'required|string',
@@ -157,46 +155,71 @@ class TrbomjController extends Controller
                 'bom_data.*.capacity' => 'required|numeric|min:1',
                 'bom_data.*.alt_bom_text' => 'required|string',
                 'bom_data.*.detail' => 'required|array|min:1',
-            ], [
-                'required' => ':attribute tidak boleh kosong',
-                'min' => ':attribute minimal :min',
-                'numeric' => ':attribute harus berupa angka',
-                'array' => ':attribute harus berupa array'
             ]);
 
             $bomDataArray = request('bom_data');
 
             foreach ($bomDataArray as $index => $bomData) {
-                // Insert ke tabel trs_bom_h
+                // Ambil data resource yang dipilih user
+                $resourceRow = DB::table('trs_bom_h')
+                    ->where('resource', $bomData['resources'])
+                    ->where('isactive', '1')
+                    ->first();
+
+                // Ambil data material_fg_sfg yang dipilih user
+                $materialRow = DB::table('trs_bom_h')
+                    ->where('material_fg_sfg', $bomData['material'])
+                    ->where('isactive', '1')
+                    ->first();
+
+                // Siapkan value untuk kolom yang mengikat resource/material
+                $product = $resourceRow->product ?? '';
+                $process = $resourceRow->process ?? '';
+                // Perbaiki: jika NULL, isi string 'NULL'
+                $material_fg_sfg_lama = isset($materialRow->material_fg_sfg_kode_lama) ? ($materialRow->material_fg_sfg_kode_lama === null ? 'NULL' : $materialRow->material_fg_sfg_kode_lama) : 'NULL';
+                // Perbaiki: plant dari materialRow, jika tidak ada default '1001'
+                $plant = isset($materialRow->plant) && $materialRow->plant ? $materialRow->plant : '1001';
+
+                // Insert ke trs_bom_h
                 $bomHeaderId = DB::table('trs_bom_h')->insertGetId([
-                    'resource' => $bomData['resources'],
                     'mat_type' => $bomData['mat_type'] ?? '',
-                    'material_fg_sfg' => $bomData['material'],
+                    'resource' => $bomData['resources'],
                     'capacity' => $bomData['capacity'],
                     'width' => $bomData['width'] ?? 0,
                     'length' => $bomData['length'] ?? 0,
-                    'alt_bom_text' => $bomData['alt_bom_text'],
+                    'product' => $product,
+                    'process' => $process,
+                    'material_fg_sfg_kode_lama' => $material_fg_sfg_lama,
+                    'material_fg_sfg' => $bomData['material'],
                     'user_create' => session('username', 'system'),
                     'created_at' => now(),
                     'updated_at' => now(),
                     'isactive' => '1'
                 ]);
 
+                // Perbaiki: Hitung alt_bom_no sekali per header
+                $alt_bom_no = RumusAndTemplateController::getNextAltBomNo($bomHeaderId);
+
                 // Insert detail ke trs_bom_d
                 if (isset($bomData['detail']) && is_array($bomData['detail'])) {
                     foreach ($bomData['detail'] as $detailData) {
-                        // Skip jika comp_material_code kosong
-                        if (empty($detailData['comp_material_code'])) {
-                            continue;
-                        }
+                        if (empty($detailData['comp_material_code'])) continue;
+
+                        $header_desc = RumusAndTemplateController::generateHeaderDesc($process, $bomData['material']);
+                        $valid_from = RumusAndTemplateController::getValidFrom();
+                        $item_number = RumusAndTemplateController::cleanItemNumber($detailData['item_number'] ?? '10');
 
                         DB::table('trs_bom_d')->insert([
                             'fk_trs_bom_h_id' => $bomHeaderId,
-                            'material_fg_sfg' => $detailData['material_fg_sfg'] ?? $bomData['material'],
-                            'alt_bom_text' => $detailData['alt_bom_text'] ?? $bomData['alt_bom_text'],
+                            'header_desc' => $header_desc,
+                            'plant' => $plant, // plant dari header
+                            'usage' => 1,
+                            'alt_bom_no' => $alt_bom_no, // gunakan alt_bom_no yang sama untuk semua detail
+                            'valid_from' => $valid_from,
+                            'alternative_bom_text' => $detailData['alt_bom_text'] ?? $bomData['alt_bom_text'],
                             'product_qty' => $detailData['product_qty'] ?? 1,
                             'base_uom_header' => $detailData['base_uom_header'] ?? '',
-                            'item_number' => $detailData['item_number'] ?? '0010',
+                            'item_number' => $item_number,
                             'type' => $detailData['type'] ?? 'L',
                             'comp_material_code' => $detailData['comp_material_code'],
                             'comp_desc' => $detailData['comp_desc'] ?? '',
@@ -213,24 +236,22 @@ class TrbomjController extends Controller
 
             DB::commit();
 
-            // Log success
-            $syslog->log_insert('C', $data['dmenu'], 'Created BOM: ' . count($bomDataArray) . ' records', '1');
+            $desc = 'Created BOM: ' . count($bomDataArray) . ' records';
+            $desc = mb_substr($desc, 0, 255);
+            $syslog->log_insert('C', $data['dmenu'], $desc, '1');
 
-            // Set success message
             Session::flash('message', 'BOM berhasil dibuat! Total: ' . count($bomDataArray) . ' record');
             Session::flash('class', 'success');
 
             return redirect($data['url_menu']);
         } catch (\Exception $e) {
             DB::rollback();
+            $desc = 'Create BOM Error: ' . $e->getMessage();
+            $desc = mb_substr($desc, 0, 255);
+            $syslog->log_insert('E', $data['dmenu'], $desc, '0');
 
-            // Log error
-            $syslog->log_insert('E', $data['dmenu'], 'Create BOM Error: ' . $e->getMessage(), '0');
-
-            // Set error message
             Session::flash('message', 'Error: ' . $e->getMessage());
             Session::flash('class', 'danger');
-
             return redirect()->back()->withInput();
         }
     }
@@ -456,10 +477,10 @@ class TrbomjController extends Controller
                 ->whereNotNull('product_qty')
                 ->whereNotNull('base_uom_header')
                 ->first();
-            
+
             $result['product_qty'] = $detail ? $detail->product_qty : '';
             $result['base_uom_header'] = $detail ? $detail->base_uom_header : '';
-            
+
             // Ambil semua komponen
             $details = TrsBomDModel::where('fk_trs_bom_h_id', $header->trs_bom_h_id)->get();
             foreach ($details as $d) {

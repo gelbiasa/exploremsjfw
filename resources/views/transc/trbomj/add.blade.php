@@ -781,6 +781,32 @@ $(document).ready(function() {
                 confirmButtonText: 'OK'
             });
         } else {
+            // SERIALIZE DATATABLES TO FORM
+            // Hapus input hidden lama
+            $('.datatable-hidden-inputs').remove();
+
+            @for ($i = 1; $i <= $rows; $i++)
+            let table{{ $i }} = $('#datatable-bom-{{ $i }}').DataTable();
+            table{{ $i }}.rows().every(function(rowIdx) {
+                let row = this.node();
+                let inputs = $(row).find('input,select,textarea');
+                inputs.each(function() {
+                    let $input = $(this);
+                    let name = $input.attr('name');
+                    let value = $input.val();
+                    if (name) {
+                        // Buat input hidden dan append ke form
+                        let hidden = $('<input>')
+                            .attr('type', 'hidden')
+                            .attr('name', name)
+                            .attr('class', 'datatable-hidden-inputs')
+                            .val(value);
+                        $('#{{ $dmenu }}-form').append(hidden);
+                    }
+                });
+            });
+            @endfor
+
             document.getElementById('{{ $dmenu }}-form').submit();
         }
     }
