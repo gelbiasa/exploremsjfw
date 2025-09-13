@@ -96,4 +96,43 @@ class RumusAndTemplateController extends Controller
 
         return response()->json($filtered);
     }
+
+    public static function generateHeaderDesc($process, $material_fg_sfg)
+    {
+        // Hilangkan angka di depan jika ada (misal: 7P0RA00... jadi P0RA00...)
+        $material_clean = preg_replace('/^\d+/', '', $material_fg_sfg);
+
+        if (strtolower($process) == 'spinning') {
+            return 'Nonwovens Jumbo ' . $material_clean;
+        } else {
+            return 'Nonwovens Spunbond ' . $material_clean;
+        }
+    }
+
+    /**
+     * Rumus alt_bom_no: hitung sudah berapa kali material_fg_sfg digunakan, lalu +1
+     */
+    public static function getNextAltBomNo($fk_trs_bom_h_id)
+    {
+        $last = DB::table('trs_bom_d')
+            ->where('fk_trs_bom_h_id', $fk_trs_bom_h_id)
+            ->max('alt_bom_no');
+        return $last ? ($last + 1) : 1;
+    }
+
+    /**
+     * Rumus valid_from: tanggal hari ini format Y-m-d
+     */
+    public static function getValidFrom()
+    {
+        return now()->format('Y-m-d');
+    }
+
+    /**
+     * Rumus item_number: hilangkan angka 0 di depan
+     */
+    public static function cleanItemNumber($item_number)
+    {
+        return ltrim($item_number, '0');
+    }
 }
